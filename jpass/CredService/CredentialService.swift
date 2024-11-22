@@ -6,7 +6,6 @@
 //
 import Foundation
 import Valet
-import OSLog
 
 class CredentialService {
     private let keychain: SecureEnclaveValet
@@ -46,12 +45,12 @@ class CredentialService {
             }
         }
 
-        guard let pw = password else {
+        guard let password = password, !password.isEmpty else {
             ConsoleLogger.shared.error("No password provided. Exiting.")
             exit(1)
         }
         
-        return pw
+        return password
     }
     
     // TODO: Cache credentials on a per user per server basis to support users who manage multiple JPS'
