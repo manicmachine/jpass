@@ -10,7 +10,7 @@ import Foundation
 struct LocalAdminOptions: ParsableArguments {
     static let localAdminKey = "JPASS_LOCAL_ADMIN"
     
-    @Option(name: .shortAndLong, help: "Username of the local admin account. Can be set using the environment variable \(LocalAdminOptions.localAdminKey).")
+    @Option(name: [.short, .customLong("ladmin")], help: "Username of the local admin account. Can be set using the environment variable \(LocalAdminOptions.localAdminKey).")
     var localAdmin: String?
     
     mutating func validate() throws {
