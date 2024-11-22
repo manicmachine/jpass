@@ -35,15 +35,21 @@ extension JPass {
             }
 
             guard let jpsService = jpsService else {
-                ConsoleLogger.shared.error("Invalid state: Missing JPS service after authentication.")
                 JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
             }
             
             var pendingResults: PendingResponse
             do {
-                var computers: [String: ComputerInventoryEntry] = [:]
                 pendingResults = try await jpsService.getPendingRotations()
+            } catch {
+                ConsoleLogger.shared.error("An error occurred while attempting to retrieve pending rotations from the JPS server: \(error)")
+                JPass.exit(withError: ExitCode(1))
+            }
+            
+            
+            var computers: [String: ComputerInventoryEntry] = [:]
 
+            do {
                 if let identifier = identifier {
                     if identifier.type != .uuid {
                         computers = try await jpsService.getComputersByIdentifier(identifier)
@@ -57,28 +63,34 @@ extension JPass {
                         }
                     }
                 }
-                
-                if mapComputers {
-                    if !computers.isEmpty {
-                        for i in pendingResults.results.indices {
-                            let id = pendingResults.results[i].user.clientManagementId
-                            if let entry = computers[id] {
-                                pendingResults.results[i].user.computerName = entry.general.name
-                            }
+            } catch {
+                ConsoleLogger.shared.error("An error occurred while attempting to retrieve computers by identifier: \(error)")
+                JPass.exit(withError: ExitCode(1))
+            }
+            
+            if mapComputers {
+                if !computers.isEmpty {
+                    for i in pendingResults.results.indices {
+                        let id = pendingResults.results[i].user.clientManagementId
+                        if let entry = computers[id] {
+                            pendingResults.results[i].user.computerName = entry.general.name
                         }
-                    } else {
-                        let managementIds = pendingResults.results.map { $0.user.clientManagementId }
+                    }
+                } else {
+                    let managementIds = pendingResults.results.map { $0.user.clientManagementId }
+                    
+                    do {
                         let computerResults = try await jpsService.getComputersByManagementId(managementIds)
-                        
                         for i in pendingResults.results.indices {
                             pendingResults.results[i].user.computerName = computerResults[pendingResults.results[i].user.clientManagementId]
                         }
+                    } catch {
+                        ConsoleLogger.shared.error("An error occurred while attempting to map computers by their management id: \(error)")
+                        JPass.exit(withError: ExitCode(1))
                     }
                 }
-            } catch {
-                ConsoleLogger.shared.error("An error occurred while attempting to retrieve pending rotations from the JPS server: \(error)")
-                JPass.exit(withError: error)
             }
+
             
             if !pendingResults.results.isEmpty {
                 if compact {
