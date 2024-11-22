@@ -22,9 +22,6 @@ struct GlobalOptions: ParsableCommand {
     @Flag(name: .shortAndLong, help: "Disables caching of credentials in local keychain. If an existing cache is present, it will be cleared.")
     var noCache = false
     
-    @Flag(name: .shortAndLong, help: "Copies the password into your clipboard directly instead of printing to STDOUT.")
-    var copy = false
-    
     @Flag(name: .shortAndLong, help: "Enable verbose logging.")
     var verbose = false
     

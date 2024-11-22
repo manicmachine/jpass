@@ -21,8 +21,8 @@ extension JPass {
         @Flag(name: .shortAndLong, help: "Maps management ids to computer names.")
         var mapComputers: Bool = false
 
-        @Flag(name: .shortAndLong, help: "Pretty prints the output.")
-        var pretty: Bool = false
+        @Flag(name: .shortAndLong, help: "Outputs results in a compact format.")
+        var compact: Bool = false
         
         var credentialService: CredentialService?
         var jpsService: JpsService?
@@ -81,7 +81,11 @@ extension JPass {
             }
             
             if !pendingResults.results.isEmpty {
-                if pretty {
+                if compact {
+                    pendingResults.results.forEach { result in
+                        print(result)
+                    }
+                } else {
                     let table = TextTable<PendingEntry> {
                         [Column(title: "Date", value: $0.createdDate),
                          Column(title: "Computer", value: $0.user.computerName == nil ? $0.user.clientManagementId : $0.user.computerName!),
@@ -91,10 +95,6 @@ extension JPass {
                     }
                     
                     table.print(pendingResults.results, style: Style.psql)
-                } else {
-                    pendingResults.results.forEach { result in
-                        print(result)
-                    }
                 }
                 
                 ConsoleLogger.shared.info("\(pendingResults.results.count) pending rotations found.")
@@ -110,7 +110,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case globalOptions, mapComputers, pretty, identifier
+            case globalOptions, mapComputers, compact, identifier
         }
     }
 }
