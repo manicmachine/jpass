@@ -1,0 +1,225 @@
+////
+////  JpsService.swift
+////  jpass
+////
+////  Created by Oliphant, Corey Dean on 10/31/24.
+////
+import SwiftyJSON
+import OSLog
+
+class JpsService {
+    static let jpsPageSizeKey = "JPASS_PAGE_SIZE"
+    static let defaultPageSize = 25
+
+    private let username: String
+    private let password: String
+    private let serverUrl: String
+    private var jpsToken: AuthToken?
+    
+    private var pageSize: Int {
+        if let envVar = Int(ProcessInfo.processInfo.environment[JpsService.jpsPageSizeKey] ?? "") {
+            return envVar
+        } else {
+            return JpsService.defaultPageSize
+        }
+    }
+    
+    init?(url: String, username: String, password: String) throws {
+        self.username = username
+        self.password = password
+        
+        do {
+            self.serverUrl = try JpsService.parseJpsUrl(url)
+        } catch {
+            throw JPassError.Error(error: "Failed to initialize JPS Service: \(error)")
+        }
+    }
+    
+    static private func parseJpsUrl(_ url: String) throws -> String {
+        let schemePattern = try! Regex(#"^.*://"#)
+        let portPattern = try! Regex(#":[0-9]{1,5}$"#)
+        var mutableUrl = url
+
+        guard let _ = URL(string: url) else {
+            throw JpsError.InvalidURL
+        }
+        
+        // Make sure we're using HTTPS
+        if let match = try schemePattern.firstMatch(in: mutableUrl) {
+            if match.0 != "https://" {
+                ConsoleLogger.shared.debug("Insecure or unsupported scheme provided, \(match.0). Converting scheme to HTTPS.")
+                mutableUrl = mutableUrl.replacingOccurrences(of: match.0, with: "https://")
+            }
+        } else {
+            ConsoleLogger.shared.debug("No scheme detected in provided URL, utilizing HTTPS scheme.")
+            mutableUrl = "https://\(mutableUrl)"
+        }
+        
+        // Add port if necessary
+        if try portPattern.firstMatch(in: mutableUrl) == nil {
+            let port = url.contains("jamfcloud") ? "443" : "8443"
+            
+            ConsoleLogger.shared.debug("No port specified in provided URL, adding default port \(port).")
+            mutableUrl = "\(mutableUrl):\(port)"
+        }
+        
+        return mutableUrl
+    }
+    
+    private func makeJpsCall(to url: URL, with method: URLRequest.Method, headers: [String: String]? = nil, body: JSON? = nil) async throws -> (Data, HTTPURLResponse) {
+        
+        var reqHeaders = Dictionary<String, String>()
+        var req = URLRequest(url: url)
+        req.httpMethod = method.rawValue.uppercased()
+        
+        if let body = body {
+            req.httpBody = try JSONEncoder().encode(body)
+        }
+        
+        // Set provided headers
+        if let headers {
+            reqHeaders.merge(headers) { (_, new) in new }
+        }
+        
+        // Set key headers if they're not already set
+        if reqHeaders["Accept"] == nil {
+            reqHeaders["Accept"] = "application/json"
+        }
+        
+        if reqHeaders["Authorization"] == nil, let token = jpsToken?.token {
+            reqHeaders["Authorization"] = "Bearer \(token)"
+        } else if reqHeaders["Authorization"] == nil && jpsToken == nil {
+            ConsoleLogger.shared.error("No authorization header set by caller and no auth token available.")
+            
+            throw JpsError.InvalidCredentials
+        }
+        
+        req.allHTTPHeaderFields = reqHeaders
+        let sendableReq = req // Swift concurrency requires variables captured by async tasks to be constants.
+        let (data, response) = try await URLSession.shared.data(for: sendableReq)
+        
+        return (data, (response as! HTTPURLResponse))
+    }
+    
+    func authenticate() async throws {
+        func getBasicAuthString(username: String, password: String) -> String? {
+            return "\(username):\(password)".data(using: .utf8)?.base64EncodedString()
+        }
+
+        ConsoleLogger.shared.debug("Authenticating to \(self.serverUrl).")
+
+        guard let url = URL(string: JpsEndpoint.authenticate.build(baseUrl: self.serverUrl)) else {
+            throw JpsError.InvalidURL
+        }
+
+        guard let authString = getBasicAuthString(username: username, password: password) else {
+            throw JpsError.InvalidCredentials
+        }
+
+        let (data, response) = try await makeJpsCall(to: url, with: .post, headers: ["Authorization": "Basic \(authString)"])
+        
+        if !response.isSuccess {
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
+        }
+        
+        ConsoleLogger.shared.debug("Authentication successful.")
+
+        self.jpsToken = try JSONDecoder().decode(AuthToken.self, from: data)
+    }
+    
+    func getPendingRotations() async throws -> PendingResponse {
+        ConsoleLogger.shared.debug("Retrieving pending rotations.")
+        
+        guard let url = URL(string: JpsEndpoint.localAdminPendingRotations.build(baseUrl: self.serverUrl)) else {
+            throw JpsError.InvalidURL
+        }
+        
+        let (data, response) = try await makeJpsCall(to: url, with: .get)
+        
+        if !response.isSuccess {
+            let error = JpsError.mapResponseCodeToError(for: response.statusCode)
+            ConsoleLogger.shared.error("Failed to retrieve pending rotations from the JPS server. \(error)")
+            
+            throw error
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]  // Ensures handling of milliseconds
+
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+            
+            guard let date = isoFormatter.date(from: dateString) else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date format")
+            }
+            return date
+        }
+
+        
+        return try decoder.decode(PendingResponse.self, from: data)
+    }
+    
+    func getComputersByManagementId(_ managementIds: [String]) async throws -> [String: String] {
+        return try await withThrowingTaskGroup(of: [String: String].self, returning: [String : String].self) { taskGroup in
+            var results: [String: String] = [:]
+            managementIds.chunked(into: self.pageSize).forEach { ids in
+                let rsql = "&filter=general.managementId=in=(\(ids.joined(separator: ",")))"
+                guard let url = URL(string: JpsEndpoint.computerInventory.build(baseUrl: self.serverUrl)  + rsql) else {
+                    return
+                }
+                
+                taskGroup.addTask {
+                    let (data, response) = try await self.makeJpsCall(to: url, with: .get)
+                    
+                    if !response.isSuccess {
+                        ConsoleLogger.shared.error("Failed to retrieve computer records while mapping management Ids")
+                        
+                        throw JpsError.mapResponseCodeToError(for: response.statusCode)
+                    }
+                    
+                    let computerResponse = try JSONDecoder().decode(ComputerInventoryResponse.self, from: data)
+                    return Dictionary(uniqueKeysWithValues: computerResponse.results.map {
+                        ($0.general.managementId, $0.general.name)
+                    })
+                }
+            }
+            
+            while let mapping = try await taskGroup.next() {
+                results.merge(mapping) { (_, new) in new }
+            }
+
+            return results
+        }
+    }
+    
+    func getComputersByIdentifier(_ identifier: JpsIdentifier) async throws -> [String: ComputerInventoryEntry] {
+        var rsql = "&filter="
+        
+        switch identifier.type {
+            case .uuid:
+                rsql += "general.managementId==\"\(identifier.value)\""
+            case .int:
+                rsql += "id==\"\(identifier.value)\","
+                fallthrough
+            case .string:
+                rsql += "general.name==\"\(identifier.value)\",general.assetTag==\"\(identifier.value)\",general.barcode1==\"\(identifier.value)\",general.barcode2==\"\(identifier.value)\",hardware.serialNumber==\"\(identifier.value)\""
+        }
+        
+        guard let url = URL(string: JpsEndpoint.computerInventory.build(baseUrl: self.serverUrl)  + rsql) else {
+            return [:]
+        }
+        
+        let (data, response) = try await self.makeJpsCall(to: url, with: .get)
+        
+        if !response.isSuccess {
+            ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifier.value)")
+            
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
+        }
+        
+        let computerResponse = try JSONDecoder().decode(ComputerInventoryResponse.self, from: data)
+        return Dictionary(uniqueKeysWithValues: computerResponse.results.map { ($0.general.managementId, $0) })
+    }
+}
