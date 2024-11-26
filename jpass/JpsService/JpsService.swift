@@ -137,10 +137,7 @@ class JpsService {
         let (data, response) = try await makeJpsCall(to: url, with: .get)
         
         if !response.isSuccess {
-            let error = JpsError.mapResponseCodeToError(for: response.statusCode)
-            ConsoleLogger.shared.error("Failed to retrieve pending rotations from the JPS server. \(error)")
-            
-            throw error
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
         }
         
         let decoder = JSONDecoder()
@@ -174,8 +171,6 @@ class JpsService {
                     let (data, response) = try await self.makeJpsCall(to: url, with: .get)
                     
                     if !response.isSuccess {
-                        ConsoleLogger.shared.error("Failed to retrieve computer records while mapping management Ids")
-                        
                         throw JpsError.mapResponseCodeToError(for: response.statusCode)
                     }
                     
@@ -214,12 +209,28 @@ class JpsService {
         let (data, response) = try await self.makeJpsCall(to: url, with: .get)
         
         if !response.isSuccess {
-            ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifier.value)")
-            
             throw JpsError.mapResponseCodeToError(for: response.statusCode)
         }
         
         let computerResponse = try JSONDecoder().decode(ComputerInventoryResponse.self, from: data)
         return Dictionary(uniqueKeysWithValues: computerResponse.results.map { ($0.general.managementId, $0) })
+    }
+    
+    func getPasswordFor(computer managementId: String, user: String, guid: String? = nil) async throws -> String? {
+        var params = ["managementId": managementId, "username": user]
+        if let guid { params["guid"] = guid }
+        
+        guard let url = URL(string: guid != nil ? JpsEndpoint.localAdminGetGuid.build(baseUrl: self.serverUrl, params: params) : JpsEndpoint.localAdminGet.build(baseUrl: self.serverUrl, params: params)) else {
+            throw JPassError.InvalidState(error: "Failed to initialize GET password URL")
+        }
+
+        let (data, response) = try await self.makeJpsCall(to: url, with: .get)
+        
+        if !response.isSuccess {
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
+        }
+        
+        let passwordResponse = try JSONDecoder().decode(PasswordResponse.self, from: data)
+        return passwordResponse.password
     }
 }
