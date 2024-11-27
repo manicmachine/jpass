@@ -111,8 +111,8 @@ extension JPass {
                 
                 ConsoleLogger.shared.info("\(pendingResults.results.count) pending rotations found.")
             } else {
-                if let _ = identifier {
-                    ConsoleLogger.shared.info("No pending rotations were found for provided identifier.")
+                if let identifier = identifier {
+                    ConsoleLogger.shared.info("No pending rotations were found for \(identifier.value).")
                 } else {
                     ConsoleLogger.shared.info("No pending rotations were found.")
                 }
