@@ -13,13 +13,13 @@ extension JPass {
         static let configuration = CommandConfiguration(abstract: "Retrieves the local admin password for a given host.", aliases: ["g"])
         
         @OptionGroup
-        var globalOptions: GlobalOptions
-        
-        @OptionGroup
         var identifierOption: IdentifierOptions
         
         @OptionGroup
         var guidOptions: GuidOptions
+        
+        @OptionGroup
+        var globalOptions: GlobalOptions
         
         @Flag(name: .shortAndLong, help: "Copies the password into your clipboard instead of printing to STDOUT.")
         var copy = false

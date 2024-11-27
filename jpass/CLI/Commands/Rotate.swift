@@ -11,10 +11,10 @@ extension JPass {
         static let configuration = CommandConfiguration(abstract: "Triggers a password rotation for the specified host.", aliases: ["rot", "r"])
         
         @OptionGroup
-        var globalOptions: GlobalOptions
+        var identifierOption: IdentifierOptions
         
         @OptionGroup
-        var identifierOption: IdentifierOptions
+        var globalOptions: GlobalOptions
         
         @OptionGroup
         var guidOptions: GuidOptions

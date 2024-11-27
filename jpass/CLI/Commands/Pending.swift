@@ -12,11 +12,11 @@ extension JPass {
     struct Pending: AsyncParsableCommand, JpsAuthenticating {
         static let configuration = CommandConfiguration(abstract: "Retrieves all devices and usernames pending a password rotation. If a host is provided, results will be filtered to only that device.", aliases: ["pen", "p"])
         
-        @OptionGroup
-        var globalOptions: GlobalOptions
-        
         @Argument(help: "One of the following identifiers: Jamf id, computer name, management id, asset tag, bar code, or serial number.")
         var identifier: JpsIdentifier?
+        
+        @OptionGroup
+        var globalOptions: GlobalOptions
         
         @Flag(name: .shortAndLong, help: "Maps management ids to computer names.")
         var mapComputers: Bool = false
