@@ -140,21 +140,7 @@ class JpsService {
             throw JpsError.mapResponseCodeToError(for: response.statusCode)
         }
         
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .custom { decoder in
-            let isoFormatter = ISO8601DateFormatter()
-            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]  // Ensures handling of milliseconds
-
-            let container = try decoder.singleValueContainer()
-            let dateString = try container.decode(String.self)
-            
-            guard let date = isoFormatter.date(from: dateString) else {
-                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date format")
-            }
-            return date
-        }
-
-        
+        let decoder = JSONDecoder.Iso8601()
         return try decoder.decode(PendingResponse.self, from: data)
     }
     
@@ -232,5 +218,21 @@ class JpsService {
         
         let passwordResponse = try JSONDecoder().decode(PasswordResponse.self, from: data)
         return passwordResponse.password
+    }
+    
+    func getHistoryFor(computer managementId: String) async throws -> [HistoryEntry] {
+        let params = ["managementId": managementId]
+        guard let url = URL(string: JpsEndpoint.localAdminHistory.build(baseUrl: self.serverUrl, params: params)) else {
+            throw JPassError.InvalidState(error: "Failed to initialize GET history URL")
+        }
+        
+        let (data, response) = try await self.makeJpsCall(to: url, with: .get)
+        
+        if !response.isSuccess {
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
+        }
+        
+        let decoder = JSONDecoder.Iso8601()
+        return try decoder.decode(HistoryResponse.self, from: data).results
     }
 }

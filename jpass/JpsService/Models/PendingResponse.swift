@@ -22,10 +22,6 @@ struct PendingEntry: Codable, CustomStringConvertible {
     }
     
     var description: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle =  .short
-        dateFormatter.timeStyle = .medium
-        
-        return "Date: \(dateFormatter.string(from: createdDate)) | Computer: \(user.computerName == nil ? user.clientManagementId : user.computerName!) | User: \(user.username) | GUID: \(user.guid) | Source: \(user.userSource)"
+        return "Date: \(createdDate.description) | Computer: \(user.computerName == nil ? user.clientManagementId : user.computerName!) | User: \(user.username) | GUID: \(user.guid) | Source: \(user.userSource)"
     }
 }
