@@ -24,7 +24,7 @@ struct GuidOptions: ParsableArguments {
         }
         
         if let _ = guid, localAdmin == nil {
-            throw ValidationError("The 'guid' option requires 'user' to be provided.")
+            throw ValidationError("The 'guid' option requires 'ladmin' to be provided.")
         }
     }
 }
