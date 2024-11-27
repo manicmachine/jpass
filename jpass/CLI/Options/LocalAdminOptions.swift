@@ -18,7 +18,7 @@ struct LocalAdminOptions: ParsableArguments {
             if let envVar = ProcessInfo.processInfo.environment[LocalAdminOptions.localAdminKey] {
                 localAdmin = envVar
             } else {
-                throw ValidationError.init("Local admin username must be provided.")
+                throw ValidationError("Local admin username must be provided.")
             }
         }
     }

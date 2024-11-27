@@ -30,7 +30,7 @@ struct GlobalOptions: ParsableCommand {
             if let envVar = ProcessInfo.processInfo.environment[GlobalOptions.serverKey] {
                 server = envVar
             } else {
-                throw ValidationError.init("Server address must be provided.")
+                throw ValidationError("Server address must be provided.")
             }
         }
         
@@ -38,7 +38,7 @@ struct GlobalOptions: ParsableCommand {
             if let envVar = ProcessInfo.processInfo.environment[GlobalOptions.userKey] {
                 user = envVar
             } else {
-                throw ValidationError.init("Jamf user must be provided.")
+                throw ValidationError("Jamf user must be provided.")
             }
         }
         
