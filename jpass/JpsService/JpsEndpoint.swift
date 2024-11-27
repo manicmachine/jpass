@@ -8,18 +8,19 @@
 enum JpsEndpoint: String {
     // Authentication
     case authenticate = "/api/v1/auth/token"
-    case revokeToken = "/api/v1/auth/invalidate-token"
+    case revokeToken = "/api/v1/auth/invalidate-token" // TODO: Implement this functionality
     
     // Computers
     case computerInventory = "/api/v1/computers-inventory?section=GENERAL&section=HARDWARE"
     
     // Local admin password management
-    case localAdminPendingRotations = "/api/v2/local-admin-password/pending-rotations"
+    case localAdminAccounts = "/api/v2/local-admin-password/{managementId}/accounts"
     case localAdminAudit = "/api/v2/local-admin-password/{managementId}/account/{username}/audit"
     case localAdminAuditGuid = "/api/v2/local-admin-password/{managementId}/account/{username}/{guid}/audit"
-    case localAdminHistory = "/api/v2/local-admin-password/{managementId}/history"
     case localAdminGet = "/api/v2/local-admin-password/{managementId}/account/{username}/password"
     case localAdminGetGuid = "/api/v2/local-admin-password/{managementId}/account/{username}/{guid}/password"
+    case localAdminHistory = "/api/v2/local-admin-password/{managementId}/history"
+    case localAdminPendingRotations = "/api/v2/local-admin-password/pending-rotations"
     case localAdminSet = "/api/v2/local-admin-password/{managementId}/set-password"
     
 

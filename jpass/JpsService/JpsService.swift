@@ -221,8 +221,7 @@ class JpsService {
     }
     
     func getHistoryFor(computer managementId: String) async throws -> [HistoryEntry] {
-        let params = ["managementId": managementId]
-        guard let url = URL(string: JpsEndpoint.localAdminHistory.build(baseUrl: self.serverUrl, params: params)) else {
+        guard let url = URL(string: JpsEndpoint.localAdminHistory.build(baseUrl: self.serverUrl, params: ["managementId": managementId])) else {
             throw JPassError.InvalidState(error: "Failed to initialize GET history URL")
         }
         
@@ -234,5 +233,20 @@ class JpsService {
         
         let decoder = JSONDecoder.Iso8601()
         return try decoder.decode(HistoryResponse.self, from: data).results
+    }
+    
+    func getAccountsFor(computer managementId: String) async throws -> [AccountsEntry] {
+        guard let url = URL(string: JpsEndpoint.localAdminAccounts.build(baseUrl: self.serverUrl, params: ["managementId": managementId])) else {
+            throw JPassError.InvalidState(error: "Failed to initialize GET accounts URL")
+        }
+        
+        let (data, response) = try await self.makeJpsCall(to: url, with: .get)
+        
+        if !response.isSuccess {
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
+        }
+        
+        let accountsResponse = try JSONDecoder().decode(AccountsResponse.self, from: data)
+        return accountsResponse.results
     }
 }
