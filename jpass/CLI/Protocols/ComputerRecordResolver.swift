@@ -8,7 +8,7 @@ import ArgumentParser
 import TextTable
 
 protocol ComputerRecordResolver {
-    var identifierOption: IdentifierOptions { get set }
+    var identifierOptions: IdentifierOptions { get set }
     var credentialService: CredentialService? { get set }
     var jpsService: JpsService? { get set }
     
@@ -19,10 +19,10 @@ protocol ComputerRecordResolver {
 extension ComputerRecordResolver {
     func resolve(from: JpsIdentifier) async throws -> String {
         var managementId = ""
-        let computers = try await jpsService!.getComputersByIdentifier(identifierOption.identifier)
+        let computers = try await jpsService!.getComputersByIdentifier(identifierOptions.identifier)
         
         if computers.count > 1 {
-            ConsoleLogger.shared.info("Multiple computers found for identifier: \(identifierOption.identifier.value)")
+            ConsoleLogger.shared.info("Multiple computers found for identifier: \(identifierOptions.identifier.value)")
             var results = Dictionary<String, ComputerInventoryEntry>()
             for (_, computerInventoryEntry) in computers {
                 results[computerInventoryEntry.id] = computerInventoryEntry
@@ -54,7 +54,7 @@ extension ComputerRecordResolver {
         } else if computers.count == 1 {
             managementId = computers.first!.key
         } else {
-            ConsoleLogger.shared.error("No computers were found with the provided identifier: \(identifierOption.identifier.value)")
+            ConsoleLogger.shared.error("No computers were found with the provided identifier: \(identifierOptions.identifier.value)")
             JPass.exit(withError: ExitCode(1))
         }
         

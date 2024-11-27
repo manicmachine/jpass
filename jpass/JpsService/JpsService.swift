@@ -249,4 +249,22 @@ class JpsService {
         let accountsResponse = try JSONDecoder().decode(AccountsResponse.self, from: data)
         return accountsResponse.results
     }
+    
+    func getAuditFor(computer managementId: String, user: String, guid: String?) async throws -> [PasswordAuditEntry] {
+        var params = ["managementId": managementId, "username": user]
+        if let guid = guid { params["guid"] = guid }
+        
+        guard let url = URL(string: guid != nil ? JpsEndpoint.localAdminAuditGuid.build(baseUrl: self.serverUrl, params: params) : JpsEndpoint.localAdminAudit.build(baseUrl: self.serverUrl, params: params)) else {
+            throw JPassError.InvalidState(error: "Failed to initialize GET audit URL")
+        }
+        
+        let (data, response) = try await self.makeJpsCall(to: url, with: .get)
+        
+        if !response.isSuccess {
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
+        }
+        
+        let decoder = JSONDecoder.Iso8601()
+        return try decoder.decode(AuditResponse.self, from: data).results
+    }
 }

@@ -13,7 +13,7 @@ extension JPass {
         static let configuration = CommandConfiguration(abstract: "Retrieves all LAPS capable accounts for a given host.", aliases: ["acc", "a"])
 
         @OptionGroup
-        var identifierOption: IdentifierOptions
+        var identifierOptions: IdentifierOptions
         
         @OptionGroup
         var globalOptions: GlobalOptions
@@ -36,27 +36,27 @@ extension JPass {
             }
             
             let managementId: String
-            if identifierOption.identifier.type != .uuid {
+            if identifierOptions.identifier.type != .uuid {
                 do {
-                    managementId = try await resolve(from: identifierOption.identifier)
+                    managementId = try await resolve(from: identifierOptions.identifier)
                 } catch {
-                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOption.identifier.value)")
+                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOptions.identifier.value)")
                     JPass.exit(withError: error)
                 }
             } else {
-                managementId = identifierOption.identifier.value
+                managementId = identifierOptions.identifier.value
             }
             
             let accountsResults: [AccountsEntry]
             do {
                 accountsResults = try await jpsService.getAccountsFor(computer: managementId)
             } catch {
-                ConsoleLogger.shared.error("An error occurred retrieving the local admin accounts for \(identifierOption.identifier.value): \(error).")
+                ConsoleLogger.shared.error("An error occurred retrieving the local admin accounts for \(identifierOptions.identifier.value): \(error).")
                 JPass.exit(withError: ExitCode(1))
             }
             
             if accountsResults.isEmpty {
-                ConsoleLogger.shared.info("No local admin accounts found for \(identifierOption.identifier.value).")
+                ConsoleLogger.shared.info("No local admin accounts found for \(identifierOptions.identifier.value).")
                 JPass.exit(withError: ExitCode(1))
             }
             
@@ -79,7 +79,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOption, globalOptions, compact
+            case identifierOptions, globalOptions, compact
         }
     }
 }

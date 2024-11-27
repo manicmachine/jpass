@@ -13,7 +13,7 @@ extension JPass {
         static let configuration = CommandConfiguration(abstract: "Retrieves the full history of all local admin passwords for a given host. Includes date created, date last seen, expiration time, and rotational status.", aliases: ["his", "h"])
         
         @OptionGroup
-        var identifierOption: IdentifierOptions
+        var identifierOptions: IdentifierOptions
         
         @OptionGroup
         var globalOptions: GlobalOptions
@@ -36,27 +36,27 @@ extension JPass {
             }
             
             let managementId: String
-            if identifierOption.identifier.type != .uuid {
+            if identifierOptions.identifier.type != .uuid {
                 do {
-                    managementId = try await resolve(from: identifierOption.identifier)
+                    managementId = try await resolve(from: identifierOptions.identifier)
                 } catch {
-                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOption.identifier.value)")
+                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOptions.identifier.value)")
                     JPass.exit(withError: error)
                 }
             } else {
-                managementId = identifierOption.identifier.value
+                managementId = identifierOptions.identifier.value
             }
             
             var historyResults: [HistoryEntry]
             do {
                 historyResults = try await jpsService.getHistoryFor(computer: managementId)
             } catch {
-                ConsoleLogger.shared.error("An error occurred retrieving the local admin password history for \(identifierOption.identifier.value): \(error).")
+                ConsoleLogger.shared.error("An error occurred retrieving the local admin password history for \(identifierOptions.identifier.value): \(error).")
                 JPass.exit(withError: ExitCode(1))
             }
             
             if historyResults.isEmpty {
-                ConsoleLogger.shared.info("No history entries found for \(identifierOption.identifier.value).")
+                ConsoleLogger.shared.info("No history entries found for \(identifierOptions.identifier.value).")
                 JPass.exit(withError: ExitCode(1))
             }
             
@@ -78,12 +78,13 @@ extension JPass {
                 }
                 
                 table.print(historyResults, style: Style.psql)
-                ConsoleLogger.shared.info("\(historyResults.count) history entries found.")
             }
+            
+            ConsoleLogger.shared.info("\(historyResults.count) history entries found.")
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOption, globalOptions, compact
+            case identifierOptions, globalOptions, compact
         }
     }
 }

@@ -11,7 +11,7 @@ extension JPass {
         static let configuration = CommandConfiguration(abstract: "Triggers a password rotation for the specified host.", aliases: ["rot", "r"])
         
         @OptionGroup
-        var identifierOption: IdentifierOptions
+        var identifierOptions: IdentifierOptions
         
         @OptionGroup
         var guidOptions: GuidOptions
@@ -34,15 +34,15 @@ extension JPass {
             }
             
             var managementId = ""
-            if identifierOption.identifier.type != .uuid {
+            if identifierOptions.identifier.type != .uuid {
                 do {
-                    managementId = try await resolve(from: identifierOption.identifier)
+                    managementId = try await resolve(from: identifierOptions.identifier)
                 } catch {
-                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOption.identifier.value)")
+                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOptions.identifier.value)")
                     JPass.exit(withError: error)
                 }
             } else {
-                managementId = identifierOption.identifier.value
+                managementId = identifierOptions.identifier.value
             }
             
             guard managementId.isEmpty == false else {
@@ -51,9 +51,9 @@ extension JPass {
             
             do {
                 if let _ = try await jpsService.getPasswordFor(computer: managementId, user: guidOptions.localAdmin!, guid: guidOptions.guid) {
-                    ConsoleLogger.shared.info("Password rotation triggered for \(identifierOption.identifier.value).")
+                    ConsoleLogger.shared.info("Password rotation triggered for \(identifierOptions.identifier.value).")
                 } else {
-                    ConsoleLogger.shared.error("No password found for \(identifierOption.identifier.value). Rotation may not have been triggered.")
+                    ConsoleLogger.shared.error("No password found for \(identifierOptions.identifier.value). Rotation may not have been triggered.")
                     JPass.exit(withError: ExitCode(1))
                 }
             } catch {
@@ -62,7 +62,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case globalOptions, identifierOption, guidOptions
+            case identifierOptions, guidOptions, globalOptions 
         }
     }
 }

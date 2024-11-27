@@ -13,7 +13,7 @@ extension JPass {
         static let configuration = CommandConfiguration(abstract: "Retrieves the local admin password for a given host.", aliases: ["g"])
         
         @OptionGroup
-        var identifierOption: IdentifierOptions
+        var identifierOptions: IdentifierOptions
         
         @OptionGroup
         var guidOptions: GuidOptions
@@ -39,15 +39,15 @@ extension JPass {
             }
             
             var managementId = ""
-            if identifierOption.identifier.type != .uuid {
+            if identifierOptions.identifier.type != .uuid {
                 do {
-                    managementId = try await resolve(from: identifierOption.identifier)
+                    managementId = try await resolve(from: identifierOptions.identifier)
                 } catch {
-                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOption.identifier.value)")
+                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOptions.identifier.value)")
                     JPass.exit(withError: error)
                 }
             } else {
-                managementId = identifierOption.identifier.value
+                managementId = identifierOptions.identifier.value
             }
             
             guard managementId.isEmpty == false else {
@@ -71,13 +71,13 @@ extension JPass {
                     print(password)
                 }
             } else {
-                ConsoleLogger.shared.error("No password found for \(identifierOption.identifier.value)")
+                ConsoleLogger.shared.error("No password found for \(identifierOptions.identifier.value)")
                 JPass.exit(withError: ExitCode(1))
             }
         }
         
         private enum CodingKeys: CodingKey {
-            case globalOptions, identifierOption, guidOptions, copy
+            case identifierOptions, guidOptions, globalOptions, copy
         }
     }
 }
