@@ -20,11 +20,6 @@ struct HistoryEntry: Codable , CustomStringConvertible {
     let viewedBy: String?
     
     var description: String {
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.timeZone = .gmt
-//        dateFormatter.dateStyle =  .short
-//        dateFormatter.timeStyle = .medium
-        
         return "Date: \(eventTime?.description ?? "-") | Event Type: \(eventType) | Username: \(username) | Source: \(userSource) | Viewed By: \(viewedBy ?? "-")"
     }
 }
