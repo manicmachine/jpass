@@ -14,10 +14,10 @@ extension JPass {
         var identifierOption: IdentifierOptions
         
         @OptionGroup
-        var globalOptions: GlobalOptions
+        var guidOptions: GuidOptions
         
         @OptionGroup
-        var guidOptions: GuidOptions
+        var globalOptions: GlobalOptions
         
         var credentialService: CredentialService?
         var jpsService: JpsService?
