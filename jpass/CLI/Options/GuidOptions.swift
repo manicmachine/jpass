@@ -6,7 +6,6 @@
 //
 import ArgumentParser
 import Foundation
-import uuid
 
 struct GuidOptions: ParsableArguments {
     @OptionGroup
