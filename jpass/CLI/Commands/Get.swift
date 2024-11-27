@@ -63,7 +63,7 @@ extension JPass {
             
             if let password = password {
                 if copy {
-                    print("Password retrieved and copied to clipboard.")
+                    ConsoleLogger.shared.info("Password retrieved and copied to clipboard.")
                     let pasteboard = NSPasteboard.general
                     pasteboard.clearContents()
                     pasteboard.setString(password, forType: .string)
