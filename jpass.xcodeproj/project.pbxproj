@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		200B45AB2CEF99AB007931F1 /* TextTable in Frameworks */ = {isa = PBXBuildFile; productRef = 200B45AA2CEF99AB007931F1 /* TextTable */; };
-		2029F1BB2CDD67AE00F636D7 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 2029F1BA2CDD67AE00F636D7 /* SwiftyJSON */; };
 		20DBD5C52CCAD42D003C5475 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 20DBD5C42CCAD42D003C5475 /* ArgumentParser */; };
 		20DBD5C82CCAE0B1003C5475 /* Valet in Frameworks */ = {isa = PBXBuildFile; productRef = 20DBD5C72CCAE0B1003C5475 /* Valet */; };
 /* End PBXBuildFile section */
@@ -42,7 +41,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2029F1BB2CDD67AE00F636D7 /* SwiftyJSON in Frameworks */,
 				20DBD5C52CCAD42D003C5475 /* ArgumentParser in Frameworks */,
 				200B45AB2CEF99AB007931F1 /* TextTable in Frameworks */,
 				20DBD5C82CCAE0B1003C5475 /* Valet in Frameworks */,
@@ -90,7 +88,6 @@
 			packageProductDependencies = (
 				20DBD5C42CCAD42D003C5475 /* ArgumentParser */,
 				20DBD5C72CCAE0B1003C5475 /* Valet */,
-				2029F1BA2CDD67AE00F636D7 /* SwiftyJSON */,
 				200B45AA2CEF99AB007931F1 /* TextTable */,
 			);
 			productName = jpass;
@@ -124,7 +121,6 @@
 			packageReferences = (
 				20DBD5C32CCAD42D003C5475 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				20DBD5C62CCAE0B1003C5475 /* XCRemoteSwiftPackageReference "Valet" */,
-				2029F1B92CDD67AE00F636D7 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
 				200B45A92CEF99AB007931F1 /* XCRemoteSwiftPackageReference "TextTable" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -324,14 +320,6 @@
 				minimumVersion = 0.0.2;
 			};
 		};
-		2029F1B92CDD67AE00F636D7 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SwiftyJSON/SwiftyJSON.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.2;
-			};
-		};
 		20DBD5C32CCAD42D003C5475 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-argument-parser.git";
@@ -355,11 +343,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 200B45A92CEF99AB007931F1 /* XCRemoteSwiftPackageReference "TextTable" */;
 			productName = TextTable;
-		};
-		2029F1BA2CDD67AE00F636D7 /* SwiftyJSON */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2029F1B92CDD67AE00F636D7 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
-			productName = SwiftyJSON;
 		};
 		20DBD5C42CCAD42D003C5475 /* ArgumentParser */ = {
 			isa = XCSwiftPackageProductDependency;
