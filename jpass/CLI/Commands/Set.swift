@@ -7,17 +7,71 @@
 import ArgumentParser
 
 extension JPass {
-    struct Set: AsyncParsableCommand {
+    struct Set: AsyncParsableCommand, JpsAuthenticating, ComputerRecordResolver {
         static let configuration = CommandConfiguration(abstract: "Sets the local admin password for the specified user on a given host.", aliases: ["s"])
 
         @OptionGroup
-        var globalOptions: GlobalOptions
+        var identifierOptions: IdentifierOptions
+        
+        @Option(name: [.short, .customLong("ladmin")], help: "The local admin account whose password will be set.")
+        var localAdmin: String
 
-        @Option(name: .shortAndLong, help: "The password to be set.")
-        var password: String
+        @Option(name: [.short, .customLong("pass")], help: "The password to be set.")
+        var password: String?
+        
+        @OptionGroup
+        var globalOptions: GlobalOptions
+        
+        var jpsService: JpsService?
+        var credentialService: CredentialService?
         
         mutating func run() async {
-            print("Set the local admin password!")
+            do {
+                try await authenticate()
+            } catch {
+                JPass.exit(withError: error)
+            }
+            
+            guard let jpsService = jpsService else {
+                JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
+            }
+            
+            let managementId: String
+            if identifierOptions.identifier.type != .uuid {
+                do {
+                    managementId = try await resolve(from: identifierOptions.identifier)
+                } catch {
+                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOptions.identifier.value)")
+                    JPass.exit(withError: error)
+                }
+            } else {
+                managementId = identifierOptions.identifier.value
+            }
+            
+            do {
+                if try await jpsService.setPasswordFor(computer: managementId, user: localAdmin, password: password!) {
+                    ConsoleLogger.shared.info("Password successfully set.")
+                }
+            } catch {
+                ConsoleLogger.shared.error("An error occurred while attempting to set the password for \(localAdmin): \(error)")
+                JPass.exit(withError: ExitCode(1))
+            }
+        }
+        
+        mutating func validate() throws {
+            if password == nil {
+                if let pw = CredentialService.promptForPassword(with: "Password for \(localAdmin): ", hideInput: false) {
+                    password = pw
+                } else {
+                    ConsoleLogger.shared.error("No password provided. Exiting.")
+                    JPass.exit(withError: ExitCode(1))
+                }
+            }
+        }
+        
+        private enum CodingKeys: CodingKey {
+            case identifierOptions, globalOptions, localAdmin, password
         }
     }
 }
+

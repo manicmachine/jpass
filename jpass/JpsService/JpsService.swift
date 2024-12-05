@@ -4,7 +4,7 @@
 ////
 ////  Created by Oliphant, Corey Dean on 10/31/24.
 ////
-import SwiftyJSON
+//import SwiftyJSON
 import OSLog
 
 class JpsService {
@@ -66,7 +66,7 @@ class JpsService {
         return mutableUrl
     }
     
-    private func makeJpsCall(to url: URL, with method: URLRequest.Method, headers: [String: String]? = nil, body: JSON? = nil) async throws -> (Data, HTTPURLResponse) {
+    private func makeJpsCall(to url: URL, with method: URLRequest.Method, headers: [String: String]? = nil, body: Encodable? = nil) async throws -> (Data, HTTPURLResponse) {
         
         var reqHeaders = Dictionary<String, String>()
         var req = URLRequest(url: url)
@@ -84,6 +84,10 @@ class JpsService {
         // Set key headers if they're not already set
         if reqHeaders["Accept"] == nil {
             reqHeaders["Accept"] = "application/json"
+        }
+        
+        if let body, reqHeaders["Content-Type"] == nil {
+            reqHeaders["Content-Type"] = "application/json"
         }
         
         if reqHeaders["Authorization"] == nil, let token = jpsToken?.token {
@@ -266,5 +270,20 @@ class JpsService {
         
         let decoder = JSONDecoder.Iso8601()
         return try decoder.decode(AuditResponse.self, from: data).results
+    }
+    
+    func setPasswordFor(computer managementId: String, user: String, password: String) async throws -> Bool {
+        guard let url = URL(string: JpsEndpoint.localAdminSet.build(baseUrl: self.serverUrl, params: ["managementId": managementId])) else {
+            throw JPassError.InvalidState(error: "Failed to initialize SET password URL")
+        }
+        
+        let body = PasswordRequest(username: user, password: password)
+        let (_, response) = try await makeJpsCall(to: url, with: .put, body: body)
+        
+        if !response.isSuccess {
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
+        } else {
+            return true
+        }
     }
 }

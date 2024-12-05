@@ -40,7 +40,7 @@ class CredentialService {
         }
         
         if password == nil {
-            if let pw = promptForPassword() {
+            if let pw = CredentialService.promptForPassword(with: "\(username)'s password: ") {
                 password = pw
             }
         }
@@ -64,12 +64,18 @@ class CredentialService {
         }
     }
     
-    private func promptForPassword() -> String? {
-        if let password = getpass("\(username)'s password: ") {
-            return String(cString: password)
+    static func promptForPassword(with message: String, hideInput: Bool = true) -> String? {
+        var password: String? = nil
+        if hideInput {
+            if let pw = getpass(message) {
+                password = String(cString: pw)
+            }
         } else {
-            return nil
+            print(message, terminator: "")
+            password = readLine()
         }
+        
+        return password
     }
 
     private func flushCreds() {
