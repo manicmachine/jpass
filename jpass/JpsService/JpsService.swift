@@ -85,7 +85,7 @@ class JpsService {
             reqHeaders["Accept"] = "application/json"
         }
         
-        if let body, reqHeaders["Content-Type"] == nil {
+        if let _ = body, reqHeaders["Content-Type"] == nil {
             reqHeaders["Content-Type"] = "application/json"
         }
         

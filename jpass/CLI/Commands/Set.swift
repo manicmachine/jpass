@@ -19,6 +19,9 @@ extension JPass {
         @Option(name: [.short, .customLong("pass")], help: "The password to be set.")
         var password: String?
         
+        @Flag(name: .shortAndLong, help: "Generate a random 3-word phrase for the password.")
+        var generate: Bool = false
+        
         @OptionGroup
         var globalOptions: GlobalOptions
         
@@ -26,6 +29,10 @@ extension JPass {
         var credentialService: CredentialService?
         
         mutating func run() async {
+            guard let password = password else {
+                JPass.exit(withError: JPassError.InvalidState(error: "Password missing after validation."))
+            }
+
             do {
                 try await authenticate()
             } catch {
@@ -49,8 +56,8 @@ extension JPass {
             }
             
             do {
-                if try await jpsService.setPasswordFor(computer: managementId, user: localAdmin, password: password!) {
-                    ConsoleLogger.shared.info("Password successfully set.")
+                if try await jpsService.setPasswordFor(computer: managementId, user: localAdmin, password: password) {
+                    ConsoleLogger.shared.info("Password successfully set to \(password)")
                 }
             } catch {
                 ConsoleLogger.shared.error("An error occurred while attempting to set the password for \(localAdmin): \(error)")
@@ -60,17 +67,23 @@ extension JPass {
         
         mutating func validate() throws {
             if password == nil {
-                if let pw = CredentialService.promptForPassword(with: "Password for \(localAdmin): ", hideInput: false) {
-                    password = pw
+                if generate {
+                    password = PassPhraseGenerator.generatePhrase()
                 } else {
-                    ConsoleLogger.shared.error("No password provided. Exiting.")
-                    JPass.exit(withError: ExitCode(1))
+                    if let pw = CredentialService.promptForPassword(with: "Password for \(localAdmin): ", hideInput: false) {
+                        password = pw
+                    } else {
+                        ConsoleLogger.shared.error("No password provided. Exiting.")
+                        JPass.exit(withError: ExitCode(1))
+                    }
                 }
+            } else if generate {
+                throw ValidationError("Both generate and password were provided but only 1 is allowed.")
             }
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, globalOptions, localAdmin, password
+            case identifierOptions, globalOptions, localAdmin, password, generate
         }
     }
 }
