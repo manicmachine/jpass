@@ -98,12 +98,17 @@ extension JPass {
                         print(result)
                     }
                 } else {
+                    let escapingMapComputers = mapComputers // Capture this in a let so we can safely pass it along to an escaping closure
                     let table = TextTable<PendingEntry> {
-                        [Column(title: "Date", value: $0.createdDate),
-                         Column(title: "Computer", value: $0.user.computerName == nil ? $0.user.clientManagementId : $0.user.computerName!),
-                         Column(title: "User", value: $0.user.username),
-                         Column(title: "GUID", value: $0.user.guid),
-                         Column(title: "Source", value: $0.user.userSource)]
+                        var columns = [Column(title: "Date", value: $0.createdDate)]
+                        if escapingMapComputers { columns.append(Column(title: "Computer Name", value: $0.user.computerName ?? "-")) }
+
+                        columns.append(contentsOf: [Column(title: "Management ID", value: $0.user.clientManagementId),
+                                                    Column(title: "User", value: $0.user.username),
+                                                    Column(title: "GUID", value: $0.user.guid),
+                                                    Column(title: "Source", value: $0.user.userSource)])
+                        
+                        return columns
                     }
                     
                     table.print(pendingResults.results, style: Style.psql)
