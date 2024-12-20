@@ -23,7 +23,7 @@ class JpsService {
         }
     }
     
-    init?(url: String, username: String, password: String) throws {
+    init(url: String, username: String, password: String) throws {
         self.username = username
         self.password = password
         

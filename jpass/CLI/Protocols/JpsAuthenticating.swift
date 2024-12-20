@@ -22,11 +22,9 @@ extension JpsAuthenticating {
             throw JPassError.InvalidState(error: "Missing user or server after argument validation.")
         }
         
-
         self.credentialService = CredentialService(for: user, skipCache: self.globalOptions.noCache)
         guard let credentialService = self.credentialService else { throw JPassError.InvalidState(error: "Credential Service missing after initialization.")}
         let password = credentialService.getPassword()
-
         
         self.jpsService = try JpsService(url: server, username: user, password: password)
         try await jpsService!.authenticate()

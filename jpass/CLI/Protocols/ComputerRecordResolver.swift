@@ -18,8 +18,12 @@ protocol ComputerRecordResolver {
 
 extension ComputerRecordResolver {
     func resolve(from: JpsIdentifier) async throws -> String {
+        guard let jpsService = jpsService else {
+            throw JPassError.InvalidState(error: "Attempted to resolve identifier before JpsService has been initalized.")
+        }
+
         var managementId = ""
-        let computers = try await jpsService!.getComputersByIdentifier(identifierOptions.identifier)
+        let computers = try await jpsService.getComputersByIdentifier(identifierOptions.identifier)
         
         if computers.count > 1 {
             ConsoleLogger.shared.info("Multiple computers found for identifier: \(identifierOptions.identifier.value)")

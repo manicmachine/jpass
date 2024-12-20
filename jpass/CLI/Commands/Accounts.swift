@@ -9,7 +9,7 @@ import ArgumentParser
 import TextTable
 
 extension JPass {
-    struct Accounts: AsyncParsableCommand, JpsAuthenticating, ComputerRecordResolver {
+    struct Accounts: AsyncParsableCommand, JpsAuthComputerResolving {
         static let configuration = CommandConfiguration(abstract: "Retrieves all LAPS capable accounts for a given host.", aliases: ["acc", "a"])
 
         @OptionGroup
@@ -25,26 +25,15 @@ extension JPass {
         var jpsService: JpsService?
         
         mutating func run() async {
+            let managementId: String
             do {
-                try await authenticate()
+                managementId = try await authenticateAndResolve()
             } catch {
                 JPass.exit(withError: error)
             }
             
             guard let jpsService = jpsService else {
                 JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
-            }
-            
-            let managementId: String
-            if identifierOptions.identifier.type != .uuid {
-                do {
-                    managementId = try await resolve(from: identifierOptions.identifier)
-                } catch {
-                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOptions.identifier.value)")
-                    JPass.exit(withError: error)
-                }
-            } else {
-                managementId = identifierOptions.identifier.value
             }
             
             let accountsResults: [AccountsEntry]

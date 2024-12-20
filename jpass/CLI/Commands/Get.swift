@@ -9,7 +9,7 @@ import ArgumentParser
 import TextTable
 
 extension JPass {
-    struct Get: AsyncParsableCommand, JpsAuthenticating, ComputerRecordResolver {
+    struct Get: AsyncParsableCommand, JpsAuthComputerResolving {
         static let configuration = CommandConfiguration(abstract: "Retrieves the local admin password for a given host.", aliases: ["g"])
         
         @OptionGroup
@@ -28,30 +28,15 @@ extension JPass {
         var jpsService: JpsService?
         
         mutating func run() async {
+            let managementId: String
             do {
-                try await authenticate()
+                managementId = try await authenticateAndResolve()
             } catch {
                 JPass.exit(withError: error)
             }
             
             guard let jpsService = jpsService else {
                 JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
-            }
-            
-            var managementId = ""
-            if identifierOptions.identifier.type != .uuid {
-                do {
-                    managementId = try await resolve(from: identifierOptions.identifier)
-                } catch {
-                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOptions.identifier.value)")
-                    JPass.exit(withError: error)
-                }
-            } else {
-                managementId = identifierOptions.identifier.value
-            }
-            
-            guard managementId.isEmpty == false else {
-                JPass.exit(withError: JPassError.InvalidState(error: "No management ID available to query against."))
             }
             
             var password: String?

@@ -7,7 +7,7 @@
 import ArgumentParser
 
 extension JPass {
-    struct Set: AsyncParsableCommand, JpsAuthenticating, ComputerRecordResolver {
+    struct Set: AsyncParsableCommand, JpsAuthComputerResolving {
         static let configuration = CommandConfiguration(abstract: "Sets the local admin password for the specified user on a given host.", aliases: ["s"])
 
         @OptionGroup
@@ -33,26 +33,15 @@ extension JPass {
                 JPass.exit(withError: JPassError.InvalidState(error: "Password missing after validation."))
             }
 
+            let managementId: String
             do {
-                try await authenticate()
+                managementId = try await authenticateAndResolve()
             } catch {
                 JPass.exit(withError: error)
             }
             
             guard let jpsService = jpsService else {
                 JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
-            }
-            
-            let managementId: String
-            if identifierOptions.identifier.type != .uuid {
-                do {
-                    managementId = try await resolve(from: identifierOptions.identifier)
-                } catch {
-                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOptions.identifier.value)")
-                    JPass.exit(withError: error)
-                }
-            } else {
-                managementId = identifierOptions.identifier.value
             }
             
             do {

@@ -9,7 +9,7 @@ import Foundation
 import TextTable
 
 extension JPass {
-    struct History: AsyncParsableCommand, JpsAuthenticating, ComputerRecordResolver {
+    struct History: AsyncParsableCommand, JpsAuthComputerResolving {
         static let configuration = CommandConfiguration(abstract: "Retrieves the full history of all local admin passwords for a given host. Includes date created, date last seen, expiration time, and rotational status.", aliases: ["his", "h"])
         
         @OptionGroup
@@ -25,26 +25,15 @@ extension JPass {
         var jpsService: JpsService?
         
         mutating func run() async {
+            let managementId: String
             do {
-                try await authenticate()
+                managementId = try await authenticateAndResolve()
             } catch {
                 JPass.exit(withError: error)
             }
             
             guard let jpsService = jpsService else {
                 JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
-            }
-            
-            let managementId: String
-            if identifierOptions.identifier.type != .uuid {
-                do {
-                    managementId = try await resolve(from: identifierOptions.identifier)
-                } catch {
-                    ConsoleLogger.shared.error("Failed to retrieve computer record for given identifier \(identifierOptions.identifier.value)")
-                    JPass.exit(withError: error)
-                }
-            } else {
-                managementId = identifierOptions.identifier.value
             }
             
             var historyResults: [HistoryEntry]
