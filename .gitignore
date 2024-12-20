@@ -1,2 +1,6 @@
 .DS_Store
 jpass.xcodeproj
+xcuserdata/
+*.xcworkspace
+*.xctimeline
+*.hmap
