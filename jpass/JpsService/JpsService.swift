@@ -271,7 +271,7 @@ class JpsService {
         return try decoder.decode(AuditResponse.self, from: data).results
     }
     
-    func setPasswordFor(computer managementId: String, user: String, password: String) async throws -> Bool {
+    func setPasswordFor(computer managementId: String, user: String, password: String) async throws {
         guard let url = URL(string: JpsEndpoint.localAdminSet.build(baseUrl: self.serverUrl, params: ["managementId": managementId])) else {
             throw JPassError.InvalidState(error: "Failed to initialize SET password URL")
         }
@@ -281,8 +281,32 @@ class JpsService {
         
         if !response.isSuccess {
             throw JpsError.mapResponseCodeToError(for: response.statusCode)
-        } else {
-            return true
+        }
+    }
+    
+    func getLocalAdminPasswordSettings() async throws -> GetSettingsResponse {
+        guard let url = URL(string: JpsEndpoint.localAdminSettings.build(baseUrl: self.serverUrl)) else {
+            throw JPassError.InvalidState(error: "Failed to initialize GET local admin password settings URL")
+        }
+        
+        let (data, response) = try await self.makeJpsCall(to: url, with: .get)
+        
+        if !response.isSuccess {
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
+        }
+        
+        return try JSONDecoder().decode(GetSettingsResponse.self, from: data)
+    }
+    
+    func setLocalAdminPasswordSettings(with settings: ModifySettingsRequest) async throws {
+        guard let url = URL(string: JpsEndpoint.localAdminSettings.build(baseUrl: self.serverUrl)) else {
+            throw JPassError.InvalidState(error: "Failed to initialize SET local admin password settings URL")
+        }
+        
+        let (data, response) = try await makeJpsCall(to: url, with: .put, body: settings)
+        
+        if !response.isSuccess {
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
         }
     }
 }

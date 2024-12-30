@@ -22,6 +22,7 @@ enum JpsEndpoint: String {
     case localAdminHistory = "/api/v2/local-admin-password/{managementId}/history"
     case localAdminPendingRotations = "/api/v2/local-admin-password/pending-rotations"
     case localAdminSet = "/api/v2/local-admin-password/{managementId}/set-password"
+    case localAdminSettings = "/api/v2/local-admin-password/settings"
     
 
     func build(baseUrl: String, params: [String: String]? = nil) -> String {
