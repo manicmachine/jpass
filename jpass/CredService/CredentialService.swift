@@ -76,6 +76,8 @@ class CredentialService {
             password = readLine()
         }
         
+        // Clear the prompt from Terminal
+        print("\u{1B}[1A\u{1B}[K", terminator: "")
         return password
     }
 
