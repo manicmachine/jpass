@@ -46,7 +46,7 @@ extension JPass {
             
             do {
                 try await jpsService.setPasswordFor(computer: managementId, user: localAdmin, password: password)
-                ConsoleLogger.shared.info("Password successfully set to \(password)")
+                ConsoleLogger.shared.info("Password successfully set.")
             } catch {
                 ConsoleLogger.shared.error("An error occurred while attempting to set the password for \(localAdmin): \(error)")
                 JPass.exit(withError: ExitCode(1))
