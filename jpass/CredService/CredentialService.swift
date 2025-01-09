@@ -96,7 +96,6 @@ class CredentialService {
             }
             
             // Check if keychain item already exists
-            ConsoleLogger.shared.debug("Checking if cached credentials already exist.")
             let baseQuery: [String: Any] = [
                 kSecClass as String: kSecClassInternetPassword,
                 kSecAttrAccessControl as String: keychainAcl,
@@ -112,13 +111,11 @@ class CredentialService {
             
             if status == errSecItemNotFound {
                 // No item exists, so let's insert one
-                ConsoleLogger.shared.debug("No existing credentials found. Caching credentials.")
                 let keychainItem: [String: Any] = baseQuery.merging([kSecValueData as String: password.data(using: String.Encoding.utf8)!]) { (_, new) in new }
                 
                 status = SecItemAdd(keychainItem as CFDictionary, nil)
             } else if status == errSecSuccess {
                 // Item found, so let's update it
-                ConsoleLogger.shared.debug("Existing credentials found. Updating credentials.")
                 let attributes: [String: Any] = [kSecValueData as String: password.data(using: String.Encoding.utf8)!]
 
                 status = SecItemUpdate(baseQuery as CFDictionary, attributes as CFDictionary)
