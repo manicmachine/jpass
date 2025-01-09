@@ -13,8 +13,8 @@ extension JPass {
         @OptionGroup
         var identifierOptions: IdentifierOptions
         
-        @Option(name: [.short, .customLong("ladmin")], help: "The local admin account whose password will be set.")
-        var localAdmin: String
+        @OptionGroup
+        var localAdminOptions: LocalAdminOptions
 
         @Option(name: [.short, .customLong("pass")], help: "The password to be set.")
         var password: String?
@@ -25,6 +25,10 @@ extension JPass {
         @OptionGroup
         var globalOptions: GlobalOptions
         
+        var localAdmin: String {
+            return self.localAdminOptions.localAdmin!
+        }
+
         var jpsService: JpsService?
         var credentialService: CredentialService?
         
@@ -71,7 +75,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, globalOptions, localAdmin, password, generate
+            case identifierOptions, globalOptions, localAdminOptions, password, generate
         }
     }
 }
