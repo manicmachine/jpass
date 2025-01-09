@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		200B45AB2CEF99AB007931F1 /* TextTable in Frameworks */ = {isa = PBXBuildFile; productRef = 200B45AA2CEF99AB007931F1 /* TextTable */; };
 		20DBD5C52CCAD42D003C5475 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 20DBD5C42CCAD42D003C5475 /* ArgumentParser */; };
-		20DBD5C82CCAE0B1003C5475 /* Valet in Frameworks */ = {isa = PBXBuildFile; productRef = 20DBD5C72CCAE0B1003C5475 /* Valet */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -43,7 +42,6 @@
 			files = (
 				20DBD5C52CCAD42D003C5475 /* ArgumentParser in Frameworks */,
 				200B45AB2CEF99AB007931F1 /* TextTable in Frameworks */,
-				20DBD5C82CCAE0B1003C5475 /* Valet in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,7 +85,6 @@
 			name = jpass;
 			packageProductDependencies = (
 				20DBD5C42CCAD42D003C5475 /* ArgumentParser */,
-				20DBD5C72CCAE0B1003C5475 /* Valet */,
 				200B45AA2CEF99AB007931F1 /* TextTable */,
 			);
 			productName = jpass;
@@ -120,7 +117,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				20DBD5C32CCAD42D003C5475 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
-				20DBD5C62CCAE0B1003C5475 /* XCRemoteSwiftPackageReference "Valet" */,
 				200B45A92CEF99AB007931F1 /* XCRemoteSwiftPackageReference "TextTable" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -328,14 +324,6 @@
 				minimumVersion = 1.5.0;
 			};
 		};
-		20DBD5C62CCAE0B1003C5475 /* XCRemoteSwiftPackageReference "Valet" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/square/Valet.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.3.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -348,11 +336,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 20DBD5C32CCAD42D003C5475 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
 			productName = ArgumentParser;
-		};
-		20DBD5C72CCAE0B1003C5475 /* Valet */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20DBD5C62CCAE0B1003C5475 /* XCRemoteSwiftPackageReference "Valet" */;
-			productName = Valet;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

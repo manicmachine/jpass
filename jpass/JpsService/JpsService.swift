@@ -9,9 +9,10 @@ import OSLog
 class JpsService {
     static let jpsPageSizeKey = "JPASS_PAGE_SIZE"
     static let defaultPageSize = 25
+    static let schemePattern = try! Regex(#"^.*://"#)
+    static let baseUrlPattern = try! Regex(#"^(?:https?:\/\/)?([^\/:]+)"#)
+    static let portPattern = try! Regex(#"([^\/:]+)[0-9]{1,5}$"#)
 
-    private let username: String
-    private let password: String
     private let serverUrl: String
     private var jpsToken: AuthToken?
     
@@ -23,10 +24,15 @@ class JpsService {
         }
     }
     
-    init(url: String, username: String, password: String) throws {
-        self.username = username
-        self.password = password
-        
+    var baseUrl: String {
+        return String(try! JpsService.baseUrlPattern.firstMatch(in: self.serverUrl)![1].value as! Substring)
+    }
+    
+    var port: String {
+        return String(try! JpsService.portPattern.firstMatch(in: self.serverUrl)![0].value as! Substring)
+    }
+    
+    init(url: String) throws {
         do {
             self.serverUrl = try JpsService.parseJpsUrl(url)
         } catch {
@@ -35,8 +41,6 @@ class JpsService {
     }
     
     static private func parseJpsUrl(_ url: String) throws -> String {
-        let schemePattern = try! Regex(#"^.*://"#)
-        let portPattern = try! Regex(#":[0-9]{1,5}$"#)
         var mutableUrl = url
 
         guard let _ = URL(string: url) else {
@@ -104,7 +108,7 @@ class JpsService {
         return (data, (response as! HTTPURLResponse))
     }
     
-    func authenticate() async throws {
+    func authenticate(username: String, password: String) async throws {
         func getBasicAuthString(username: String, password: String) -> String? {
             return "\(username):\(password)".data(using: .utf8)?.base64EncodedString()
         }
