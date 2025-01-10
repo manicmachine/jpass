@@ -4,26 +4,30 @@
 //
 //  Created by Oliphant, Corey Dean on 11/7/24.
 //
+import Foundation
 
+enum JpsError: String, LocalizedError {
+    var errorDescription: String? {
+        return self.rawValue
+    }
 
-enum JpsError: String, Error {
     // General errors
     case InvalidURL = "Invalid URL provided"
     case InvalidCredentials = "Invalid credentials provided"
     case UnknownError = "An unknown error has occurred"
     
     // Http client errors
-    case BadRequest = "Error 400"
-    case Unauthorized = "Error 401, unauthorized access"
-    case Forbidden = "Error 403, forbidden access"
-    case NotFound = "Error 404, requested resource not found"
-    case MethodNotAllowed = "Error 405, method not allowed for given resource"
+    case BadRequest = "400, bad request"
+    case Unauthorized = "401, unauthorized access"
+    case Forbidden = "403, forbidden access"
+    case NotFound = "404, requested resource not found"
+    case MethodNotAllowed = "405, method not allowed for given resource"
     
     // Http server errors
-    case InternalError = "Error 500, internal server error encountered"
-    case BadGateway = "Error 502, bad gateway"
-    case ServiceUnavailable = "Error 503, service unavailable"
-    case GatewayTimeout = "Error 504, gateway timeout"
+    case InternalError = "500, internal server error encountered"
+    case BadGateway = "502, bad gateway"
+    case ServiceUnavailable = "503, service unavailable"
+    case GatewayTimeout = "504, gateway timeout"
     
     static func mapResponseCodeToError(for code: Int) -> JpsError {
         switch code {
