@@ -10,8 +10,8 @@ class ConsoleLogger {
     static let shared = ConsoleLogger()
     static var verbose = false
     
-    func info(_ message: String) {
-        print(message)
+    func info(_ message: String, terminator: String = "\n") {
+        print(message, terminator: terminator)
     }
     
     func debug(_ message: String) {

@@ -37,6 +37,10 @@ extension JPass.Settings {
                 JPass.exit(withError: ExitCode(1))
             }
             
+            Self.printSettings(settingsResponse)
+        }
+        
+        static func printSettings(_ settings: GetSettingsResponse) {
             let table = TextTable<GetSettingsResponse> {
                 [Column(title: "Auto Deploy Enabled", value: $0.autoDeployEnabled),
                  Column(title: "Auto Rotate Enabled", value: $0.autoRotateEnabled),
@@ -45,10 +49,10 @@ extension JPass.Settings {
                 ]
             }
             
-            table.print([settingsResponse], style: Style.psql)
+            table.print([settings], style: Style.psql)
         }
         
-        private static func formatSecondsString(seconds: Int) -> String {
+        static func formatSecondsString(seconds: Int) -> String {
             let dSeconds = Double(seconds)
             let secondsPerMin = 60.0
             let secondsPerHour = 3600.0
