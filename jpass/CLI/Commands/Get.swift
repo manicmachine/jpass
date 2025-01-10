@@ -24,6 +24,9 @@ extension JPass {
         @Flag(name: .shortAndLong, help: "Copies the password into your clipboard instead of printing to STDOUT.")
         var copy = false
         
+        @Flag(name: .shortAndLong, help: "Returns the password in NATO phonetic format.")
+        var nato: Bool = false
+        
         var credentialService: CredentialService?
         var jpsService: JpsService?
         
@@ -46,7 +49,11 @@ extension JPass {
                 JPass.exit(withError: error)
             }
             
-            if let password = password {
+            if var password = password {
+                if nato {
+                    password = "Password: \(password)\n\n\(NatoPhoneticGenerator.generateCodePhrase(for: password))"
+                }
+                
                 if copy {
                     ConsoleLogger.shared.info("Password retrieved and copied to clipboard.")
                     let pasteboard = NSPasteboard.general
@@ -62,7 +69,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, guidOptions, globalOptions, copy
+            case identifierOptions, guidOptions, nato, globalOptions, copy
         }
     }
 }

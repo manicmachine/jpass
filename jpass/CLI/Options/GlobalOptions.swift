@@ -19,7 +19,7 @@ struct GlobalOptions: ParsableCommand {
     @Option(name: .shortAndLong, help: "The Jamf Pro user used for authentication. Can be set using the environment variable \(userKey).")
     var user: String?
     
-    @Flag(name: .shortAndLong, help: "Disables caching of credentials in local keychain. If an existing cache is present, it will be cleared.")
+    @Flag(name: .long, help: "Disables retrieval and caching of credentials in local keychain.")
     var noCache = false
     
     @Flag(name: .shortAndLong, help: "Enable verbose logging.")
