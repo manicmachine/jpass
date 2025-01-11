@@ -24,6 +24,9 @@ extension JPass {
         @Flag(name: .shortAndLong, help: "Outputs results in a compact format.")
         var compact: Bool = false
         
+        @Flag(name: .shortAndLong, help: "Map api client ids to client names.")
+        var mapClients: Bool = false
+        
         var credentialService: CredentialService?
         var jpsService: JpsService?
         
@@ -43,7 +46,7 @@ extension JPass {
             do {
                 auditResponse = try await jpsService.getAuditFor(computer: managementId, user: guidOptions.localAdmin!, guid: guidOptions.guid)
             } catch {
-                ConsoleLogger.shared.error("An error occurred retrieving the audit log for \(identifierOptions.identifier.value): \(error).")
+                ConsoleLogger.shared.error("An error occurred while retrieving the audit log for \(identifierOptions.identifier.value): \(error).")
                 JPass.exit(withError: ExitCode(1))
             }
             
@@ -65,6 +68,24 @@ extension JPass {
             
             unifiedAuditEntries = unifiedAuditEntries.sorted { $0.expirationTime ?? Date(timeIntervalSince1970: 0) < $1.expirationTime ?? Date(timeIntervalSince1970: 0)}
             
+            if mapClients {
+                do {
+                    let apiIntegrationsResponse = try await jpsService.getApiIntegrations()
+                    
+                    let apiClients = apiIntegrationsResponse.reduce(into: [String: String]()) { result, client in
+                        result[client.clientId] = client.displayName
+                    }
+                    
+                    for i in unifiedAuditEntries.indices {
+                        if let id = unifiedAuditEntries[i].viewedBy, let displayName = apiClients[id] {
+                            unifiedAuditEntries[i].viewedBy = displayName
+                        }
+                    }
+                } catch {
+                    ConsoleLogger.shared.error("An error occurred while retrieving API client information: \(error)")
+                }
+            }
+            
             if compact {
                 unifiedAuditEntries.forEach {
                     print($0)
@@ -84,7 +105,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, guidOptions, globalOptions, compact
+            case identifierOptions, guidOptions, globalOptions, compact, mapClients
         }
     }
 }

@@ -17,7 +17,7 @@ struct HistoryEntry: Codable , CustomStringConvertible {
     let userSource: String
     let eventType: String
     let eventTime: Date?
-    let viewedBy: String?
+    var viewedBy: String?
     
     var description: String {
         return "Date: \(eventTime?.description ?? "-") | Event Type: \(eventType) | Username: \(username) | Source: \(userSource) | Viewed By: \(viewedBy ?? "-")"

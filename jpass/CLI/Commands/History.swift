@@ -21,6 +21,9 @@ extension JPass {
         @Flag(name: .shortAndLong, help: "Outputs results in a compact format.")
         var compact: Bool = false
         
+        @Flag(name: .shortAndLong, help: "Map api client ids to client names.")
+        var mapClients: Bool = false
+        
         var credentialService: CredentialService?
         var jpsService: JpsService?
         
@@ -40,7 +43,7 @@ extension JPass {
             do {
                 historyResults = try await jpsService.getHistoryFor(computer: managementId)
             } catch {
-                ConsoleLogger.shared.error("An error occurred retrieving the local admin password history for \(identifierOptions.identifier.value): \(error).")
+                ConsoleLogger.shared.error("An error occurred while retrieving the local admin password history for \(identifierOptions.identifier.value): \(error).")
                 JPass.exit(withError: ExitCode(1))
             }
             
@@ -51,6 +54,24 @@ extension JPass {
             
             historyResults = historyResults.filter { $0.eventTime != nil }
             historyResults = historyResults.sorted { $0.eventTime! < $1.eventTime! }
+            
+            if mapClients {
+                do {
+                    let apiIntegrationsResponse = try await jpsService.getApiIntegrations()
+                    
+                    let apiClients = apiIntegrationsResponse.reduce(into: [String: String]()) { result, client in
+                        result[client.clientId] = client.displayName
+                    }
+                    
+                    for i in historyResults.indices {
+                        if let id = historyResults[i].viewedBy, let displayName = apiClients[id] {
+                            historyResults[i].viewedBy = displayName
+                        }
+                    }
+                } catch {
+                    ConsoleLogger.shared.error("An error occurred while retrieving API client information: \(error)")
+                }
+            }
             
             if compact {
                 historyResults.forEach {
@@ -73,7 +94,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, globalOptions, compact
+            case identifierOptions, globalOptions, compact, mapClients
         }
     }
 }

@@ -307,10 +307,39 @@ class JpsService {
             throw JPassError.InvalidState(error: "Failed to initialize SET local admin password settings URL")
         }
         
-        let (data, response) = try await makeJpsCall(to: url, with: .put, body: settings)
+        let (_, response) = try await makeJpsCall(to: url, with: .put, body: settings)
         
         if !response.isSuccess {
             throw JpsError.mapResponseCodeToError(for: response.statusCode)
         }
+    }
+    
+    func getApiIntegrations() async throws -> [ApiIntegrationsEntry] {
+        guard let url = URL(string: JpsEndpoint.apiIntegrations.build(baseUrl: self.serverUrl)) else {
+            throw JPassError.InvalidState(error: "Failed to initialize GET api integrations URL")
+        }
+        
+        var page = 0
+        var retrievedResults: [ApiIntegrationsEntry] = []
+        
+        while true {
+            let pagedUrl = url.appending(queryItems: [URLQueryItem(name: "page", value: String(page)), URLQueryItem(name: "page-size", value: String(self.pageSize))])
+            let (data, response) = try await makeJpsCall(to: pagedUrl, with: .get)
+            
+            if !response.isSuccess {
+                throw JpsError.mapResponseCodeToError(for: response.statusCode)
+            }
+            
+            let decodedData = try JSONDecoder().decode(ApiIntegrationsResponse.self, from: data)
+            retrievedResults.append(contentsOf: decodedData.results)
+            
+            if retrievedResults.count >= decodedData.totalCount {
+                break
+            } else {
+                page += 1
+            }
+        }
+        
+        return retrievedResults
     }
 }

@@ -29,7 +29,7 @@ struct UnifiedAuditEntry: Codable, CustomStringConvertible {
     let dateLastSeen: Date?
     let expirationTime: Date?
     let dateSeen: Date?
-    let viewedBy: String?
+    var viewedBy: String?
     
     init(passwordEntry: PasswordAuditEntry, auditEntry: AuditEntry? = nil) {
         self.password = passwordEntry.password
