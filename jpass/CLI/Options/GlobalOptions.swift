@@ -13,7 +13,7 @@ struct GlobalOptions: ParsableCommand {
     static let userKey = "JPASS_USER"
     static let serverKey = "JPASS_SERVER"
     
-    @Option(name: .shortAndLong, help: "The Jamf Pro server URL and port (if not standard). If not port is defined, the default port 443 will be used for Jamf Cloud instances and 8443 for everything else. Can be set using the environment variable \(serverKey).")
+    @Option(name: .shortAndLong, help: "The Jamf Pro server URL and port (if not standard). If no port is defined, the default port 443 will be used for Jamf Cloud instances and 8443 for everything else. Can be set using the environment variable \(serverKey).")
     var server: String?
     
     @Option(name: .shortAndLong, help: "The Jamf Pro user used for authentication. Can be set using the environment variable \(userKey).")
