@@ -18,9 +18,6 @@ extension JPass {
         @OptionGroup
         var globalOptions: GlobalOptions
         
-        @Flag(name: .shortAndLong, help: "Outputs results in a compact format.")
-        var compact: Bool = false
-        
         var credentialService: CredentialService?
         var jpsService: JpsService?
         
@@ -49,26 +46,20 @@ extension JPass {
                 JPass.exit(withError: ExitCode(1))
             }
             
-            if compact {
-                accountsResults.forEach {
-                    print($0)
-                }
-            } else {
-                let table = TextTable<AccountsEntry> {
-                    [Column(title: "Username", value: $0.username),
-                     Column(title: "User Source", value: $0.userSource),
-                     Column(title: "GUID", value: $0.guid),
-                     Column(title: "Management ID", value: $0.clientManagementId)
-                    ]
-                }
-                
-                table.print(accountsResults, style: Style.psql)
-                ConsoleLogger.shared.info("\(accountsResults.count) local admin accounts found.")
+            let table = TextTable<AccountsEntry> {
+                [Column(title: "Username", value: $0.username),
+                 Column(title: "User Source", value: $0.userSource),
+                 Column(title: "GUID", value: $0.guid),
+                 Column(title: "Management ID", value: $0.clientManagementId)
+                ]
             }
+            
+            table.print(accountsResults, style: Style.psql)
+            ConsoleLogger.shared.info("\(accountsResults.count) local admin accounts found.")
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, globalOptions, compact
+            case identifierOptions, globalOptions
         }
     }
 }

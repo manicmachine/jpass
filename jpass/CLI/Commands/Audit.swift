@@ -18,17 +18,14 @@ extension JPass {
         @OptionGroup
         var guidOptions: GuidOptions
         
-        @OptionGroup
-        var globalOptions: GlobalOptions
-        
-        @Flag(name: .shortAndLong, help: "Outputs results in a compact format.")
-        var compact: Bool = false
-        
         @Flag(name: .shortAndLong, help: "Map api client ids to client names.")
         var mapClients: Bool = false
         
         @Flag(exclusivity: .exclusive, help: "Determines sort order.")
         var sortOrder: SortOrder = .recentFirst
+        
+        @OptionGroup
+        var globalOptions: GlobalOptions
         
         var credentialService: CredentialService?
         var jpsService: JpsService?
@@ -93,32 +90,26 @@ extension JPass {
                 }
             }
             
-            if compact {
-                unifiedAuditEntries.forEach {
-                    print($0)
-                }
-            } else {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
 
-                let table = TextTable<UnifiedAuditEntry> {
-                    let expirationString = $0.expirationTime != nil ? dateFormatter.string(from: $0.expirationTime!) : "-"
-                    let dateSeenString = $0.dateSeen != nil ? dateFormatter.string(from: $0.dateSeen!) : "-"
-                    
-                    return [Column(title: "Password", value: $0.password),
-                            Column(title: "Date Seen", value: dateSeenString),
-                            Column(title: "Expiration Time", value: expirationString),
-                            Column(title: "Viewed By", value: $0.viewedBy ?? "-")]
-                }
+            let table = TextTable<UnifiedAuditEntry> {
+                let expirationString = $0.expirationTime != nil ? dateFormatter.string(from: $0.expirationTime!) : "-"
+                let dateSeenString = $0.dateSeen != nil ? dateFormatter.string(from: $0.dateSeen!) : "-"
                 
-                table.print(unifiedAuditEntries, style: Style.psql)
+                return [Column(title: "Password", value: $0.password),
+                        Column(title: "Date Seen", value: dateSeenString),
+                        Column(title: "Expiration Time", value: expirationString),
+                        Column(title: "Viewed By", value: $0.viewedBy ?? "-")]
             }
+            
+            table.print(unifiedAuditEntries, style: Style.psql)
 
             ConsoleLogger.shared.info("\(unifiedAuditEntries.count) audit log entries found.")
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, guidOptions, globalOptions, compact, mapClients, sortOrder
+            case identifierOptions, guidOptions, globalOptions, mapClients, sortOrder
         }
     }
 }

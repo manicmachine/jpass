@@ -14,18 +14,15 @@ extension JPass {
         
         @OptionGroup
         var identifierOptions: IdentifierOptions
-        
-        @OptionGroup
-        var globalOptions: GlobalOptions
-        
-        @Flag(name: .shortAndLong, help: "Outputs results in a compact format.")
-        var compact: Bool = false
-        
+
         @Flag(name: .shortAndLong, help: "Map api client ids to client names.")
         var mapClients: Bool = false
         
         @Flag(exclusivity: .exclusive, help: "Determines sort order.")
         var sortOrder: SortOrder = .recentFirst
+        
+        @OptionGroup
+        var globalOptions: GlobalOptions
         
         var credentialService: CredentialService?
         var jpsService: JpsService?
@@ -81,33 +78,27 @@ extension JPass {
                 }
             }
             
-            if compact {
-                historyResults.forEach {
-                    print($0)
-                }
-            } else {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
+            
+            let table = TextTable<HistoryEntry> {
+                let dateString = $0.eventTime != nil ? dateFormatter.string(from: $0.eventTime!) : "-"
                 
-                let table = TextTable<HistoryEntry> {
-                    let dateString = $0.eventTime != nil ? dateFormatter.string(from: $0.eventTime!) : "-"
-                    
-                    return [Column(title: "Date", value: dateString),
-                     Column(title: "Event Type", value: $0.eventType),
-                     Column(title: "Username", value: $0.username),
-                     Column(title: "Source", value: $0.userSource),
-                     Column(title: "Viewed By", value: $0.viewedBy ?? "-")
-                    ]
-                }
-                
-                table.print(historyResults, style: Style.psql)
+                return [Column(title: "Date", value: dateString),
+                 Column(title: "Event Type", value: $0.eventType),
+                 Column(title: "Username", value: $0.username),
+                 Column(title: "Source", value: $0.userSource),
+                 Column(title: "Viewed By", value: $0.viewedBy ?? "-")
+                ]
             }
+            
+            table.print(historyResults, style: Style.psql)
             
             ConsoleLogger.shared.info("\(historyResults.count) history entries found.")
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, globalOptions, compact, mapClients, sortOrder
+            case identifierOptions, globalOptions, mapClients, sortOrder
         }
     }
 }
