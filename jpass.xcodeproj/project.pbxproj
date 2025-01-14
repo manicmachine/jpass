@@ -27,22 +27,9 @@
 		20DBD5B92CCAD1F3003C5475 /* jpass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = jpass; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		20CCA3702D36F60D00E2D9EF /* Exceptions for "jpass" folder in "Compile Sources" phase from "jpass" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 20DBD5B52CCAD1F3003C5475 /* Sources */;
-			membershipExceptions = (
-				CLI/Options/SortOrder,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		20DBD5BB2CCAD1F3003C5475 /* jpass */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				20CCA3702D36F60D00E2D9EF /* Exceptions for "jpass" folder in "Compile Sources" phase from "jpass" target */,
-			);
 			path = jpass;
 			sourceTree = "<group>";
 		};
