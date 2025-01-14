@@ -342,4 +342,25 @@ class JpsService {
         
         return retrievedResults
     }
+    
+    deinit {
+        if let jpsToken {
+            guard let url = URL(string: JpsEndpoint.revokeToken.build(baseUrl: self.serverUrl)) else {
+                ConsoleLogger.shared.error("Failed to revoke auth token: error while generating URL.")
+                return
+            }
+            
+            var req = URLRequest(url: url)
+            req.httpMethod = URLRequest.Method.post.rawValue.uppercased()
+            req.allHTTPHeaderFields = ["Authorization": "Bearer \(jpsToken)"]
+            
+            Task {
+                do {
+                    let _ = try await URLSession.shared.data(for: req)
+                } catch {
+                    ConsoleLogger.shared.error("Failed to revoke auth token: \(error)")
+                }
+            }
+        }
+    }
 }
