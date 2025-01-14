@@ -8,14 +8,13 @@ import Foundation
 
 class ConsoleLogger {
     static let shared = ConsoleLogger()
-    static var verbose = false
     
     func info(_ message: String, terminator: String = "\n") {
         print(message, terminator: terminator)
     }
     
     func debug(_ message: String) {
-        if ConsoleLogger.verbose {
+        if GlobalSettings.shared.verbose {
             print(message)
         }
     }

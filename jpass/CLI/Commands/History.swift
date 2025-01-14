@@ -78,8 +78,13 @@ extension JPass {
                     print($0)
                 }
             } else {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
+                
                 let table = TextTable<HistoryEntry> {
-                    [Column(title: "Date", value: $0.eventTime ?? "-"),
+                    let dateString = $0.eventTime != nil ? dateFormatter.string(from: $0.eventTime!) : "-"
+                    
+                    return [Column(title: "Date", value: dateString),
                      Column(title: "Event Type", value: $0.eventType),
                      Column(title: "Username", value: $0.username),
                      Column(title: "Source", value: $0.userSource),

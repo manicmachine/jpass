@@ -42,7 +42,6 @@ struct GlobalOptions: ParsableCommand {
             }
         }
         
-        // This is a workaround to dynamically set the logging level based upon the flag state
-        ConsoleLogger.verbose = verbose
+        GlobalSettings.shared.verbose = verbose
     }
 }

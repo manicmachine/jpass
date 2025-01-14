@@ -100,7 +100,10 @@ extension JPass {
                 } else {
                     let escapingMapComputers = mapComputers // Capture this in a let so we can safely pass it along to an escaping closure
                     let table = TextTable<PendingEntry> {
-                        var columns = [Column(title: "Date", value: $0.createdDate)]
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
+
+                        var columns = [Column(title: "Date", value: dateFormatter.string(from: $0.createdDate))]
                         if escapingMapComputers { columns.append(Column(title: "Computer Name", value: $0.user.computerName ?? "-")) }
 
                         columns.append(contentsOf: [Column(title: "Management ID", value: $0.user.clientManagementId),

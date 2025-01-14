@@ -91,11 +91,17 @@ extension JPass {
                     print($0)
                 }
             } else {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
+
                 let table = TextTable<UnifiedAuditEntry> {
-                    [Column(title: "Password", value: $0.password),
-                     Column(title: "Expiration Time", value: $0.expirationTime ?? "-"),
-                     Column(title: "Date Seen", value: $0.dateSeen ?? "-"),
-                     Column(title: "Viewed By", value: $0.viewedBy ?? "-")]
+                    let expirationString = $0.expirationTime != nil ? dateFormatter.string(from: $0.expirationTime!) : "-"
+                    let dateSeenString = $0.dateSeen != nil ? dateFormatter.string(from: $0.dateSeen!) : "-"
+                    
+                    return [Column(title: "Password", value: $0.password),
+                            Column(title: "Date Seen", value: dateSeenString),
+                            Column(title: "Expiration Time", value: expirationString),
+                            Column(title: "Viewed By", value: $0.viewedBy ?? "-")]
                 }
                 
                 table.print(unifiedAuditEntries, style: Style.psql)
