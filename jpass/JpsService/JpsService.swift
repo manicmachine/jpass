@@ -42,6 +42,10 @@ class JpsService {
     
     static private func parseJpsUrl(_ url: String) throws -> String {
         var mutableUrl = url
+        
+        if mutableUrl.last == "/" {
+            mutableUrl.removeLast()
+        }
 
         guard let _ = URL(string: url) else {
             throw JpsError.InvalidURL
