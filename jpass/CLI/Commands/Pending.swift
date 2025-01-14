@@ -24,6 +24,9 @@ extension JPass {
         @Flag(name: .shortAndLong, help: "Outputs results in a compact format.")
         var compact: Bool = false
         
+        @Flag(exclusivity: .exclusive, help: "Determines sort order.")
+        var sortOrder: SortOrder = .oldestFirst
+        
         var credentialService: CredentialService?
         var jpsService: JpsService?
         
@@ -93,6 +96,12 @@ extension JPass {
 
             
             if !pendingResults.results.isEmpty {
+                if sortOrder == .recentFirst {
+                    pendingResults.results = pendingResults.results.sorted { $0.createdDate > $1.createdDate }
+                } else {
+                    pendingResults.results = pendingResults.results.sorted { $0.createdDate < $1.createdDate }
+                }
+                
                 if compact {
                     pendingResults.results.forEach { result in
                         print(result)
@@ -130,7 +139,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case globalOptions, mapComputers, compact, identifier
+            case globalOptions, mapComputers, compact, identifier, sortOrder
         }
     }
 }

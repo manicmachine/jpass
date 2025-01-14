@@ -27,6 +27,9 @@ extension JPass {
         @Flag(name: .shortAndLong, help: "Map api client ids to client names.")
         var mapClients: Bool = false
         
+        @Flag(exclusivity: .exclusive, help: "Determines sort order.")
+        var sortOrder: SortOrder = .recentFirst
+        
         var credentialService: CredentialService?
         var jpsService: JpsService?
         
@@ -66,7 +69,11 @@ extension JPass {
                 }
             }
             
-            unifiedAuditEntries = unifiedAuditEntries.sorted { $0.expirationTime ?? Date(timeIntervalSince1970: 0) < $1.expirationTime ?? Date(timeIntervalSince1970: 0)}
+            if sortOrder == .recentFirst {
+                unifiedAuditEntries = unifiedAuditEntries.sorted { $0.expirationTime ?? Date(timeIntervalSince1970: 0) > $1.expirationTime ?? Date(timeIntervalSince1970: 0) }
+            } else {
+                unifiedAuditEntries = unifiedAuditEntries.sorted { $0.expirationTime ?? Date(timeIntervalSince1970: 0) < $1.expirationTime ?? Date(timeIntervalSince1970: 0) }
+            }
             
             if mapClients {
                 do {
@@ -111,7 +118,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, guidOptions, globalOptions, compact, mapClients
+            case identifierOptions, guidOptions, globalOptions, compact, mapClients, sortOrder
         }
     }
 }
