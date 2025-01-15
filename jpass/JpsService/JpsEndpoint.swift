@@ -8,7 +8,8 @@
 enum JpsEndpoint: String {
     // Authentication
     case authenticate = "/api/v1/auth/token"
-    case revokeToken = "/api/v1/auth/invalidate-token" // TODO: Implement this functionality
+    case apiClientAuthenticate = "/api/oauth/token"
+    case revokeToken = "/api/v1/auth/invalidate-token"
     
     // Computers
     case computerInventory = "/api/v1/computers-inventory?section=GENERAL&section=HARDWARE"

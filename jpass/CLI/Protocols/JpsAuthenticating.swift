@@ -18,8 +18,8 @@ protocol JpsAuthenticating {
 
 extension JpsAuthenticating {
     mutating func authenticate() async throws {
-        guard let user = globalOptions.user, let server = globalOptions.server else {
-            throw JPassError.InvalidState(error: "Missing user or server after argument validation.")
+        guard let user = globalOptions.authenticatingUser, let server = globalOptions.server else {
+            throw JPassError.InvalidState(error: "Missing authenticatingUser or server after argument validation.")
         }
         
         self.jpsService = try JpsService(url: server)
@@ -36,7 +36,12 @@ extension JpsAuthenticating {
             let password = credentialService.getPassword()
             
             do {
-                try await jpsService.authenticate(username: user, password: password)
+                if globalOptions.isApiClient {
+                    try await jpsService.authenticateApiClient(clientId: user, secret: password)
+                } else {
+                    try await jpsService.authenticate(username: user, password: password)
+                }
+                
                 break
             } catch JpsError.Unauthorized {
                 if credentialService.passwordFromCache {

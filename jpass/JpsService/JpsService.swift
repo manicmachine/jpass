@@ -14,7 +14,18 @@ class JpsService {
     static let portPattern = try! Regex(#"([^\/:]+)[0-9]{1,5}$"#)
 
     private let serverUrl: String
-    private var jpsToken: AuthToken?
+    private var authToken: AuthToken?
+    private var oAuthToken: OAuthToken?
+    
+    private var jpsToken: String? {
+        if let authToken {
+            return authToken.token
+        } else if let oAuthToken {
+            return oAuthToken.accessToken
+        } else {
+            return nil
+        }
+    }
     
     private var pageSize: Int {
         if let envVar = Int(ProcessInfo.processInfo.environment[JpsService.jpsPageSizeKey] ?? "") {
@@ -97,7 +108,7 @@ class JpsService {
             reqHeaders["Content-Type"] = "application/json"
         }
         
-        if reqHeaders["Authorization"] == nil, let token = jpsToken?.token {
+        if reqHeaders["Authorization"] == nil, let token = jpsToken {
             reqHeaders["Authorization"] = "Bearer \(token)"
         } else if reqHeaders["Authorization"] == nil && jpsToken == nil {
             ConsoleLogger.shared.error("No authorization header set by caller and no auth token available.")
@@ -118,7 +129,7 @@ class JpsService {
         }
 
         ConsoleLogger.shared.debug("Authenticating to \(self.serverUrl).")
-
+        
         guard let url = URL(string: JpsEndpoint.authenticate.build(baseUrl: self.serverUrl)) else {
             throw JpsError.InvalidURL
         }
@@ -135,7 +146,43 @@ class JpsService {
         
         ConsoleLogger.shared.debug("Authentication successful.")
 
-        self.jpsToken = try JSONDecoder().decode(AuthToken.self, from: data)
+        self.authToken = try JSONDecoder().decode(AuthToken.self, from: data)
+    }
+    
+    func authenticateApiClient(clientId: String, secret: String) async throws {
+        ConsoleLogger.shared.debug("Authenticating API Client to \(self.serverUrl).")
+
+        guard let url = URL(string: JpsEndpoint.apiClientAuthenticate.build(baseUrl: self.serverUrl)) else {
+            throw JpsError.InvalidURL
+        }
+        
+        var req = URLRequest(url: url)
+        req.httpMethod = URLRequest.Method.post.rawValue.uppercased()
+        req.addValue("application/json", forHTTPHeaderField: "Accept")
+        req.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        
+        var requestBodyComponents = URLComponents()
+        requestBodyComponents.queryItems = [URLQueryItem(name: "client_id", value: clientId),
+                                            URLQueryItem(name: "client_secret", value: secret),
+                                            URLQueryItem(name: "grant_type", value: "client_credentials")
+        ]
+        
+        req.httpBody = requestBodyComponents.query?.data(using: .utf8)
+        
+        let (data, res) = try await URLSession.shared.data(for: req)
+        
+        if let response = res as? HTTPURLResponse {
+            if !response.isSuccess {
+                throw JpsError.mapResponseCodeToError(for: response.statusCode)
+            }
+            
+            ConsoleLogger.shared.debug("Authentication successful.")
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            self.oAuthToken = try decoder.decode(OAuthToken.self, from: data)
+        } else {
+            throw JPassError.Error(error: "Invalid response returned by the JPS.")
+        }
     }
     
     func getPendingRotations() async throws -> PendingResponse {
@@ -354,6 +401,7 @@ class JpsService {
                 return
             }
             
+            let semaphore = DispatchSemaphore(value: 0)
             var req = URLRequest(url: url)
             req.httpMethod = URLRequest.Method.post.rawValue.uppercased()
             req.allHTTPHeaderFields = ["Authorization": "Bearer \(jpsToken)"]
@@ -361,10 +409,13 @@ class JpsService {
             Task {
                 do {
                     let _ = try await URLSession.shared.data(for: req)
+                    semaphore.signal()
                 } catch {
                     ConsoleLogger.shared.error("Failed to revoke auth token: \(error)")
                 }
             }
+            
+            semaphore.wait()
         }
     }
 }
