@@ -24,7 +24,7 @@ extension JPass {
         @Flag(name: .shortAndLong, help: "Copies the password into your clipboard instead of printing to STDOUT.")
         var copy = false
         
-        @Flag(name: .shortAndLong, help: "Returns the password in NATO phonetic format.")
+        @Flag(name: .shortAndLong, help: "Returns the password in an easily communicated NATO phonetic format.")
         var nato: Bool = false
         
         var credentialService: CredentialService?

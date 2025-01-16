@@ -52,7 +52,7 @@ struct NatoPhoneticGenerator {
             case "y": result += "Yankee"
             case "z": result += "Zulu"
             default:
-                if let intValue = Int(str) {
+                if let _ = Int(str) {
                     switch c {
                         case "0":
                             return "Zero"

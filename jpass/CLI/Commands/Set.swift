@@ -19,7 +19,7 @@ extension JPass {
         @Option(name: [.short, .customLong("pass")], help: "The password to be set.")
         var password: String?
         
-        @Flag(name: .shortAndLong, help: "Generate a random 3-word phrase for the password.")
+        @Flag(name: .shortAndLong, help: "Generate a random 14 to 29 character 3-word phrase for the password in the format <adverb>-<verb>-<noun>.")
         var generate: Bool = false
         
         @OptionGroup
