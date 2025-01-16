@@ -7,9 +7,9 @@
 
 import ArgumentParser
 
-extension JPass.Settings {
-    struct SettingsModify: AsyncParsableCommand, JpsAuthenticating {
-        static let configuration = CommandConfiguration(commandName: "modify", abstract: "Modifies the global local admin password settings.", aliases: ["mod", "m"])
+extension JPass.Config {
+    struct ConfigModify: AsyncParsableCommand, JpsAuthenticating {
+        static let configuration = CommandConfiguration(commandName: "set", abstract: "Sets the global local admin password configuration.", aliases: ["s"])
         
         @Flag(inversion: .prefixedEnableDisable)
         var autoDeploy: Bool?
@@ -49,7 +49,7 @@ extension JPass.Settings {
                 if !hasChanges(currentSettings, autoDeploy, autoRotate, passwordRotationTime, autoRotateExpirationTime) {
                     ConsoleLogger.shared.info("Provided settings are identical to current settings.")
                     ConsoleLogger.shared.info("Current Local Admin Password Settings:")
-                    SettingsGet.printSettings(currentSettings)
+                    ConfigGet.printSettings(currentSettings)
                     
                     JPass.exit(withError: ExitCode.success)
                 } else if !confirm {
@@ -73,7 +73,7 @@ extension JPass.Settings {
                     
                     if let passwordRotationTime {
                         if currentSettings.passwordRotationTime != passwordRotationTime {
-                            ConsoleLogger.shared.info("Password Rotation Time: \(SettingsGet.formatSecondsString(seconds: currentSettings.passwordRotationTime)) -> \(SettingsGet.formatSecondsString(seconds: passwordRotationTime))")
+                            ConsoleLogger.shared.info("Password Rotation Time: \(ConfigGet.formatSecondsString(seconds: currentSettings.passwordRotationTime)) -> \(ConfigGet.formatSecondsString(seconds: passwordRotationTime))")
                         } else {
                             ConsoleLogger.shared.info("Desired Password Rotation Time setting (\(passwordRotationTime) is already set.")
                         }
@@ -81,7 +81,7 @@ extension JPass.Settings {
                     
                     if let autoRotateExpirationTime {
                         if currentSettings.autoRotateExpirationTime != autoRotateExpirationTime {
-                            ConsoleLogger.shared.info("Auto Rotate Expiration Time: \(SettingsGet.formatSecondsString(seconds: currentSettings.autoRotateExpirationTime)) -> \(SettingsGet.formatSecondsString(seconds: autoRotateExpirationTime))")
+                            ConsoleLogger.shared.info("Auto Rotate Expiration Time: \(ConfigGet.formatSecondsString(seconds: currentSettings.autoRotateExpirationTime)) -> \(ConfigGet.formatSecondsString(seconds: autoRotateExpirationTime))")
                         } else {
                             ConsoleLogger.shared.info("Desired Auto Rotate Expiration Time setting (\(autoRotateExpirationTime) is already set.")
                         }

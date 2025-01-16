@@ -11,7 +11,7 @@ struct JPass: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "jpass",
         abstract: "Manage local admin passwords on the Jamf Pro server",
-        subcommands: [Accounts.self, Audit.self, Get.self, History.self, Pending.self, Rotate.self, Set.self, Settings.self],
+        subcommands: [Accounts.self, Audit.self, Config.self, FlushCache.self, Get.self, History.self, Pending.self, Rotate.self, Set.self],
         defaultSubcommand: Get.self
     )
 }

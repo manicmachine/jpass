@@ -8,9 +8,9 @@
 import ArgumentParser
 import TextTable
 
-extension JPass.Settings {
-    struct SettingsGet: AsyncParsableCommand, JpsAuthenticating {
-        static let configuration = CommandConfiguration(commandName: "get", abstract: "Retrieves the current global local admin password settings.", aliases: ["g"])
+extension JPass.Config {
+    struct ConfigGet: AsyncParsableCommand, JpsAuthenticating {
+        static let configuration = CommandConfiguration(commandName: "get", abstract: "Retrieves the current global local admin password configuration.", aliases: ["g"])
         
         @OptionGroup
         var globalOptions: GlobalOptions
