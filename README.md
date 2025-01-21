@@ -5,7 +5,7 @@
 JPass is a command-line interface (CLI) written in Swift designed to streamline the administrative experience for interacting with [Jamf Pro's LAPS (Local Administrator Password Solution)](https://www.jamf.com/blog/jamf-pro-laps-manage-local-admin-passwords/).
 Built to reduce the friction of adopting best practices for managing local administrator accounts in Jamf Pro environments.
 
-Written by Corey Oliphant: A Jamf Administrator for the University of Wisconsin - Eau Claire (birth place of Jamf) and former Jamf Software Engineer/Technical Support Engineer.
+Written by Corey Oliphant: A Jamf System Administrator and former Jamf Software Engineer/Technical Support Engineer.
 
 ## Key Features
 ### 🆔 Flexible Identifier Lookups
