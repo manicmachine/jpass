@@ -59,7 +59,7 @@ intentionally disallows the ability to pipe credentials (sorry, you'll have to t
 While Swift supports all major operating systems, JPass currently only supports MacOS since it leverages Mac specific APIs to access the local keychain. This may change in the future if there's enough demand.
 
 JPass is a self-contained binary so it can be installed anywhere. The recommended method is to download the latest release and 
-move it to `/usr/local/bin/` as this path is included in your envionrment by default - making it easily accessible anywhere in your shell.
+move it to `/usr/local/bin/` as this path is included in your environment by default - making it easily accessible anywhere in your shell.
 
 ## Configuration
 JPass supports the following (optional) environment variables:
@@ -90,13 +90,17 @@ All examples assume the above JPass environment variables have been configured. 
 
 For detailed usage, all commands support the `--help|-h` flag. Alternatively, you can use `jpass help <command>`. 
 
+All subcommands support aliases to reduce the number of keystrokes (typing is hard, I know), such as `pen` and `p` for `pending`. All aliases can be viewed by checking the help text. 
+
 **NOTE: `<identifier>` can be one of the following: Jamf Id, computer name, management id, asset tag, bar code, or serial number. If multiple results are returned, admins are prompted to select a specific host before proceeding.**
 - **Retrieve a LAPS password**:
   ```bash
   jpass get <identifier> [--nato|-n] [--copy|-c]
   ```
-  `get` is the default command, so this can be reduced to `jpass <identifier>`
+  `get` is the default command, so this can be reduced to `jpass <identifier>`.
+  
   If `--nato|-n` is provided, the retrieved password will be printed to STDOUT in addition along with a NATO phonetic pronounciation guide.
+  
   If `--copy|-c` is provided, the retrieved password will be copied directly to your clipboard instead of being printed to STDOUT.
 - **Rotate a LAPS password**:
   ```bash
