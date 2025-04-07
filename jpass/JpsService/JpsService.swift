@@ -278,6 +278,21 @@ class JpsService {
         return passwordResponse.password
     }
     
+    func rotatePasswordFor(computer managementId: String, user: String, guid: String? = nil) async throws {
+        var params = ["managementId": managementId, "username": user]
+        if let guid { params["guid"] = guid }
+        
+        guard let url = URL(string: guid != nil ? JpsEndpoint.localAdminGetGuid.build(baseUrl: self.serverUrl, params: params) : JpsEndpoint.localAdminGet.build(baseUrl: self.serverUrl, params: params)) else {
+            throw JPassError.InvalidState(error: "Failed to initialize GET password URL")
+        }
+
+        let (_, response) = try await self.makeJpsCall(to: url, with: .head)
+        
+        if !response.isSuccess {
+            throw JpsError.mapResponseCodeToError(for: response.statusCode)
+        }
+    }
+    
     func getHistoryFor(computer managementId: String) async throws -> [HistoryEntry] {
         guard let url = URL(string: JpsEndpoint.localAdminHistory.build(baseUrl: self.serverUrl, params: ["managementId": managementId])) else {
             throw JPassError.InvalidState(error: "Failed to initialize GET history URL")

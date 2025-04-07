@@ -35,12 +35,7 @@ extension JPass {
             }
             
             do {
-                if let _ = try await jpsService.getPasswordFor(computer: managementId, user: guidOptions.localAdmin!, guid: guidOptions.guid) {
-                    ConsoleLogger.shared.info("Password rotation triggered for \(identifierOptions.identifier.value).")
-                } else {
-                    ConsoleLogger.shared.error("No password found for \(identifierOptions.identifier.value). Rotation may not have been triggered.")
-                    JPass.exit(withError: ExitCode(1))
-                }
+                try await jpsService.rotatePasswordFor(computer: managementId, user: guidOptions.localAdmin!, guid: guidOptions.guid)
             } catch {
                 JPass.exit(withError: error)
             }
