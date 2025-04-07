@@ -8,10 +8,10 @@ import ArgumentParser
 
 extension JPass {
     struct Rotate: AsyncParsableCommand, JpsAuthComputerResolving {
-        static let configuration = CommandConfiguration(abstract: "Triggers a password rotation for the specified host.", aliases: ["rot", "r"])
+        static let configuration = CommandConfiguration(abstract: "Triggers a password rotation for the given host(s).", aliases: ["rot", "r"])
         
         @OptionGroup
-        var identifierOptions: IdentifierOptions
+        var identifierOptions: MultipleIdentifiersOptions
         
         @OptionGroup
         var guidOptions: GuidOptions
@@ -23,9 +23,9 @@ extension JPass {
         var jpsService: JpsService?
         
         mutating func run() async {
-            let managementId: String
+            let managementIds: [String]
             do {
-                managementId = try await authenticateAndResolve()
+                managementIds = try await authenticateAndResolve()
             } catch {
                 JPass.exit(withError: error)
             }
@@ -33,11 +33,22 @@ extension JPass {
             guard let jpsService = jpsService else {
                 JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
             }
-            
-            do {
-                try await jpsService.rotatePasswordFor(computer: managementId, user: guidOptions.localAdmin!, guid: guidOptions.guid)
-            } catch {
-                JPass.exit(withError: error)
+
+            // Create sendable variables to avoid concurrency warnings
+            let _localAdmin = guidOptions.localAdmin!
+            let _guid = guidOptions.guid
+
+            await withTaskGroup(of: Void.self) { group in
+                for managementId in managementIds {
+                    group.addTask {
+                        do {
+                            try await jpsService.rotatePasswordFor(computer: managementId, user: _localAdmin, guid: _guid)
+                            ConsoleLogger.shared.info("Password rotation triggered for \(managementId).")
+                        } catch {
+                            ConsoleLogger.shared.error("Failed to rotate password for \(managementId): \(error.localizedDescription)")
+                        }
+                    }
+                }
             }
         }
         

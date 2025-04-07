@@ -7,7 +7,11 @@
 
 import ArgumentParser
 
-struct IdentifierOptions: ParsableCommand {
+struct SingleIdentifierOptions: IdentifierOption {
     @Argument(help: "One of the following identifiers: Jamf id, computer name, management id, asset tag, bar code, or serial number.")
     var identifier: JpsIdentifier
+    
+    var identifiers: [JpsIdentifier] {
+        return [identifier]
+    }
 }

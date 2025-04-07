@@ -24,7 +24,7 @@ class CredentialService {
     
     func getPassword() -> String {
        if !skipCache {
-            ConsoleLogger.shared.debug("Checking for cached credentials for \(self.username)@\(server):\(port).")
+            ConsoleLogger.shared.verbose("Checking for cached credentials for \(self.username)@\(server):\(port).")
 
             // Check if cached password is present
            let keychainAcl = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly, .userPresence, nil)
@@ -45,20 +45,20 @@ class CredentialService {
             if status == errSecSuccess {
                 // Credentials located
                 if let keychainValues = item as? [String: Any], let passwordData = keychainValues[kSecValueData as String] as? Data {
-                    ConsoleLogger.shared.debug("Cached credentials located.")
+                    ConsoleLogger.shared.verbose("Cached credentials located.")
                     passwordFromCache = true
                     password = String(data: passwordData, encoding: .utf8)
                 } else {
                     ConsoleLogger.shared.error("Unexpected value returned from keychain.")
                 }
             } else if status == errSecItemNotFound {
-                ConsoleLogger.shared.debug("No cached credentials located in keychain.")
+                ConsoleLogger.shared.verbose("No cached credentials located in keychain.")
             } else {
                 let statusMessage = SecCopyErrorMessageString(status, nil)!
-                ConsoleLogger.shared.debug("Error encountered while attempting to retrieve cached credentials: \(statusMessage)")
+                ConsoleLogger.shared.verbose("Error encountered while attempting to retrieve cached credentials: \(statusMessage)")
             }
         } else {
-            ConsoleLogger.shared.debug("Skip cache enabled, skipping keychain lookup.")
+            ConsoleLogger.shared.verbose("Skip cache enabled, skipping keychain lookup.")
         }
         if password == nil {
             if let pw = CredentialService.promptForPassword(with: "\(username)'s password: ") {
@@ -79,11 +79,11 @@ class CredentialService {
             // Current password is from cache so nothing needs to be done here.
             return
         } else if skipCache {
-            ConsoleLogger.shared.debug("Skip cache enabled, credentials not stored.")
+            ConsoleLogger.shared.verbose("Skip cache enabled, credentials not stored.")
             return
         }
 
-        ConsoleLogger.shared.debug("Caching credentials in local keychain.")
+        ConsoleLogger.shared.verbose("Caching credentials in local keychain.")
 
         do {
             guard let password = password else {
@@ -127,7 +127,7 @@ class CredentialService {
                 throw JPassError.Error(error: "Failed to store password in keychain: \(statusMessage)")
             }
             
-            ConsoleLogger.shared.debug("Credentials successfully cached.")
+            ConsoleLogger.shared.verbose("Credentials successfully cached.")
         } catch {
             ConsoleLogger.shared.error("An error has occured while storing cached password for \(self.username): \(error).")
         }
@@ -153,7 +153,7 @@ class CredentialService {
             let statusMessage = SecCopyErrorMessageString(status, nil)!
             ConsoleLogger.shared.error("An error has occured while deleting cached credentials: \(statusMessage). You may need to delete them manually via Keychain Access.")
         } else {
-            ConsoleLogger.shared.debug("Cached credentials deleted successfully.")
+            ConsoleLogger.shared.verbose("Cached credentials deleted successfully.")
         }
     }
     

@@ -5,8 +5,18 @@
 //  Created by Oliphant, Corey Dean on 11/20/24.
 //
 
-enum JPassError: Error {
+import Foundation
+
+enum JPassError: LocalizedError {
     case Error(error: String)
     case InvalidState(error: String)
-    case NoResults
+    case NoResults(error: String = "No results found")
+    
+    var errorDescription: String? {
+        switch self {
+            case .Error(let error): return error
+            case .InvalidState(let error): return error
+            case .NoResults(let error): return error
+        }
+    }
 }

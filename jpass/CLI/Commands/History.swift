@@ -13,7 +13,7 @@ extension JPass {
         static let configuration = CommandConfiguration(abstract: "Retrieves the full history of all local admin passwords for a given host. Includes date created, date last seen, expiration time, and rotational status.", aliases: ["his", "h"])
         
         @OptionGroup
-        var identifierOptions: IdentifierOptions
+        var identifierOptions: SingleIdentifierOptions
 
         @Flag(name: .shortAndLong, help: "Map api client ids to client names.")
         var mapClients: Bool = false
@@ -30,7 +30,7 @@ extension JPass {
         mutating func run() async {
             let managementId: String
             do {
-                managementId = try await authenticateAndResolve()
+                managementId = try await authenticateAndResolve().first!
             } catch {
                 JPass.exit(withError: error)
             }

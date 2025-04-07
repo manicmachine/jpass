@@ -13,7 +13,7 @@ extension JPass {
         static let configuration = CommandConfiguration(abstract: "Retrieves all LAPS capable accounts for a given host.", aliases: ["acc", "a"])
 
         @OptionGroup
-        var identifierOptions: IdentifierOptions
+        var identifierOptions: SingleIdentifierOptions
         
         @OptionGroup
         var globalOptions: GlobalOptions
@@ -24,7 +24,7 @@ extension JPass {
         mutating func run() async {
             let managementId: String
             do {
-                managementId = try await authenticateAndResolve()
+                managementId = try await authenticateAndResolve().first!
             } catch {
                 JPass.exit(withError: error)
             }

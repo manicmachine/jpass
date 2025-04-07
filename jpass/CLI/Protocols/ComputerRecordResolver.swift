@@ -8,25 +8,27 @@ import ArgumentParser
 import TextTable
 
 protocol ComputerRecordResolver {
-    var identifierOptions: IdentifierOptions { get set }
+    associatedtype IO: IdentifierOption
+
+    var identifierOptions: IO { get set }
     var credentialService: CredentialService? { get set }
     var jpsService: JpsService? { get set }
     
-    func resolve(from: JpsIdentifier) async throws -> String
+    func resolveManagementId(from: JpsIdentifier) async throws -> String?
 }
 
-
 extension ComputerRecordResolver {
-    func resolve(from: JpsIdentifier) async throws -> String {
+    func resolveManagementId(from identifier: JpsIdentifier) async throws -> String? {
         guard let jpsService = jpsService else {
             throw JPassError.InvalidState(error: "Attempted to resolve identifier before JpsService has been initalized.")
         }
 
-        var managementId = ""
-        let computers = try await jpsService.getComputersByIdentifier(identifierOptions.identifier)
+        ConsoleLogger.shared.verbose("Resolving identifier '\(identifier.value)' to management ID")
+        var managementId: String?
+        let computers = try await jpsService.getComputersByIdentifier(identifier)
         
         if computers.count > 1 {
-            ConsoleLogger.shared.info("Multiple computers found for identifier: \(identifierOptions.identifier.value)")
+            ConsoleLogger.shared.info("Multiple computers found for identifier: \(identifier.value)")
             var results = Dictionary<String, ComputerInventoryEntry>()
             for (_, computerInventoryEntry) in computers {
                 results[computerInventoryEntry.id] = computerInventoryEntry
@@ -58,10 +60,15 @@ extension ComputerRecordResolver {
         } else if computers.count == 1 {
             managementId = computers.first!.key
         } else {
-            ConsoleLogger.shared.error("No computers were found with the provided identifier: \(identifierOptions.identifier.value)")
-            JPass.exit(withError: ExitCode(1))
+            ConsoleLogger.shared.error("No computers were found with the provided identifier: \(identifier.value)")
         }
         
+        if let mId = managementId {
+            ConsoleLogger.shared.verbose("Resolved identifier '\(identifier.value)' to management ID '\(mId)'.")
+        } else {
+            ConsoleLogger.shared.error("Failed to resolve identifier '\(identifier.value)' to a management ID.")
+        }
+
         return managementId
     }
 }

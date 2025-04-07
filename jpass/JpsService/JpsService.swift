@@ -65,11 +65,11 @@ class JpsService {
         // Make sure we're using HTTPS
         if let match = try schemePattern.firstMatch(in: mutableUrl) {
             if match.0 != "https://" {
-                ConsoleLogger.shared.debug("Insecure or unsupported scheme provided, \(match.0). Converting scheme to HTTPS.")
+                ConsoleLogger.shared.verbose("Insecure or unsupported scheme provided, \(match.0). Converting scheme to HTTPS.")
                 mutableUrl = mutableUrl.replacingOccurrences(of: match.0, with: "https://")
             }
         } else {
-            ConsoleLogger.shared.debug("No scheme detected in provided URL, utilizing HTTPS scheme.")
+            ConsoleLogger.shared.verbose("No scheme detected in provided URL, utilizing HTTPS scheme.")
             mutableUrl = "https://\(mutableUrl)"
         }
         
@@ -77,7 +77,7 @@ class JpsService {
         if try portPattern.firstMatch(in: mutableUrl) == nil {
             let port = url.contains("jamfcloud") ? "443" : "8443"
             
-            ConsoleLogger.shared.debug("No port specified in provided URL, adding default port \(port).")
+            ConsoleLogger.shared.verbose("No port specified in provided URL, adding default port \(port).")
             mutableUrl = "\(mutableUrl):\(port)"
         }
         
@@ -128,7 +128,7 @@ class JpsService {
             return "\(username):\(password)".data(using: .utf8)?.base64EncodedString()
         }
 
-        ConsoleLogger.shared.debug("Authenticating to \(self.serverUrl).")
+        ConsoleLogger.shared.verbose("Authenticating to \(self.serverUrl).")
         
         guard let url = URL(string: JpsEndpoint.authenticate.build(baseUrl: self.serverUrl)) else {
             throw JpsError.InvalidURL
@@ -144,13 +144,13 @@ class JpsService {
             throw JpsError.mapResponseCodeToError(for: response.statusCode)
         }
         
-        ConsoleLogger.shared.debug("Authentication successful.")
+        ConsoleLogger.shared.verbose("Authentication successful.")
 
         self.authToken = try JSONDecoder().decode(AuthToken.self, from: data)
     }
     
     func authenticateApiClient(clientId: String, secret: String) async throws {
-        ConsoleLogger.shared.debug("Authenticating API Client to \(self.serverUrl).")
+        ConsoleLogger.shared.verbose("Authenticating API Client to \(self.serverUrl).")
 
         guard let url = URL(string: JpsEndpoint.apiClientAuthenticate.build(baseUrl: self.serverUrl)) else {
             throw JpsError.InvalidURL
@@ -176,7 +176,7 @@ class JpsService {
                 throw JpsError.mapResponseCodeToError(for: response.statusCode)
             }
             
-            ConsoleLogger.shared.debug("Authentication successful.")
+            ConsoleLogger.shared.verbose("Authentication successful.")
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             self.oAuthToken = try decoder.decode(OAuthToken.self, from: data)
@@ -186,7 +186,7 @@ class JpsService {
     }
     
     func getPendingRotations() async throws -> PendingResponse {
-        ConsoleLogger.shared.debug("Retrieving pending rotations.")
+        ConsoleLogger.shared.verbose("Retrieving pending rotations.")
         
         guard let url = URL(string: JpsEndpoint.localAdminPendingRotations.build(baseUrl: self.serverUrl)) else {
             throw JpsError.InvalidURL

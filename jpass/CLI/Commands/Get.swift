@@ -13,7 +13,7 @@ extension JPass {
         static let configuration = CommandConfiguration(abstract: "Retrieves the local admin password for a given host.", aliases: ["g"])
         
         @OptionGroup
-        var identifierOptions: IdentifierOptions
+        var identifierOptions: SingleIdentifierOptions
         
         @OptionGroup
         var guidOptions: GuidOptions
@@ -33,7 +33,7 @@ extension JPass {
         mutating func run() async {
             let managementId: String
             do {
-                managementId = try await authenticateAndResolve()
+                managementId = try await authenticateAndResolve().first!
             } catch {
                 JPass.exit(withError: error)
             }

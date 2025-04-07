@@ -13,7 +13,7 @@ extension JPass {
         static let configuration = CommandConfiguration(abstract: "Retrieves the full history of all local admin passwords for a given host. Includes the password, who viewed it, and when it was viewed.", aliases: ["aud", "a"])
         
         @OptionGroup
-        var identifierOptions: IdentifierOptions
+        var identifierOptions: SingleIdentifierOptions
         
         @OptionGroup
         var guidOptions: GuidOptions
@@ -33,7 +33,7 @@ extension JPass {
         mutating func run() async {
             let managementId: String
             do {
-                managementId = try await authenticateAndResolve()
+                managementId = try await authenticateAndResolve().first!
             } catch {
                 JPass.exit(withError: error)
             }

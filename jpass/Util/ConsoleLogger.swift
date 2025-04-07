@@ -13,7 +13,7 @@ class ConsoleLogger {
         print(message, terminator: terminator)
     }
     
-    func debug(_ message: String) {
+    func verbose(_ message: String) {
         if GlobalSettings.shared.verbose {
             print(message)
         }
