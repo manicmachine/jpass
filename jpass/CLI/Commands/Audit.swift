@@ -10,7 +10,7 @@ import TextTable
 
 extension JPass {
     struct Audit: AsyncParsableCommand, JpsAuthComputerResolving {
-        static let configuration = CommandConfiguration(abstract: "Retrieves the full history of all local admin passwords for a given host. Includes the password, who viewed it, and when it was viewed.", aliases: ["aud", "a"])
+        static let configuration = CommandConfiguration(abstract: "Retrieves the full history of all local admin passwords for a given host. Includes the password, who viewed it, and when it was viewed.", aliases: ["aud", "u"])
         
         @OptionGroup
         var identifierOptions: SingleIdentifierOptions
@@ -22,7 +22,7 @@ extension JPass {
         var mapClients: Bool = false
         
         @Flag(exclusivity: .exclusive, help: "Determines sort order.")
-        var sortOrder: SortOrder = .recentFirst
+        var sortOrder: SortOrder = .newestFirst
         
         @OptionGroup
         var globalOptions: GlobalOptions
@@ -66,7 +66,7 @@ extension JPass {
                 }
             }
             
-            if sortOrder == .recentFirst {
+            if sortOrder == .newestFirst {
                 unifiedAuditEntries = unifiedAuditEntries.sorted { $0.expirationTime ?? Date(timeIntervalSince1970: 0) > $1.expirationTime ?? Date(timeIntervalSince1970: 0) }
             } else {
                 unifiedAuditEntries = unifiedAuditEntries.sorted { $0.expirationTime ?? Date(timeIntervalSince1970: 0) < $1.expirationTime ?? Date(timeIntervalSince1970: 0) }

@@ -19,7 +19,7 @@ extension JPass {
         var mapClients: Bool = false
         
         @Flag(exclusivity: .exclusive, help: "Determines sort order.")
-        var sortOrder: SortOrder = .recentFirst
+        var sortOrder: SortOrder = .newestFirst
         
         @OptionGroup
         var globalOptions: GlobalOptions
@@ -54,7 +54,7 @@ extension JPass {
             
             historyResults = historyResults.filter { $0.eventTime != nil }
             
-            if sortOrder == .recentFirst {
+            if sortOrder == .newestFirst {
                 historyResults = historyResults.sorted { $0.eventTime ?? Date(timeIntervalSince1970: 0) > $1.eventTime ?? Date(timeIntervalSince1970: 0) }
             } else {
                 historyResults = historyResults.sorted { $0.eventTime ?? Date(timeIntervalSince1970: 0) < $1.eventTime ?? Date(timeIntervalSince1970: 0) }

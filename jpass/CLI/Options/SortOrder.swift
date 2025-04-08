@@ -8,6 +8,6 @@
 import ArgumentParser
 
 enum SortOrder: String, EnumerableFlag {
-    case recentFirst
+    case newestFirst
     case oldestFirst
 }

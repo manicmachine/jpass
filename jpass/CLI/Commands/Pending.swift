@@ -93,7 +93,7 @@ extension JPass {
 
             
             if !pendingResults.results.isEmpty {
-                if sortOrder == .recentFirst {
+                if sortOrder == .newestFirst {
                     pendingResults.results = pendingResults.results.sorted { $0.createdDate > $1.createdDate }
                 } else {
                     pendingResults.results = pendingResults.results.sorted { $0.createdDate < $1.createdDate }
