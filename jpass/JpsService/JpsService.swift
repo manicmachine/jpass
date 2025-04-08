@@ -247,7 +247,7 @@ class JpsService {
         }
         
         guard let url = URL(string: JpsEndpoint.computerInventory.build(baseUrl: self.serverUrl)  + rsql) else {
-            return [:]
+            throw JPassError.InvalidState(error: "Failed to initialize GET computers RSQL URL")
         }
         
         let (data, response) = try await self.makeJpsCall(to: url, with: .get)

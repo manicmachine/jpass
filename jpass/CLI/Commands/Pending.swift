@@ -10,10 +10,10 @@ import TextTable
 
 extension JPass {
     struct Pending: AsyncParsableCommand, JpsAuthenticating {
-        static let configuration = CommandConfiguration(abstract: "Retrieves all devices and usernames pending a password rotation. If a host is provided, results will be filtered to only that device.", aliases: ["pen", "p"])
+        static let configuration = CommandConfiguration(abstract: "Retrieves all devices and usernames pending a password rotation. If identifiers are provided, results will be filtered to only those devices.", aliases: ["pen", "p"])
         
-        @Argument(help: "One of the following identifiers: Jamf id, computer name, management id, asset tag, bar code, or serial number.")
-        var identifier: JpsIdentifier?
+        @Argument(help: "One or more of the following identifiers: Jamf id, computer name, management id, asset tag, bar code, or serial number.")
+        var identifiers: [JpsIdentifier] = []
 
         @Flag(name: .shortAndLong, help: "Maps management ids to computer names.")
         var mapComputers: Bool = false
@@ -47,19 +47,27 @@ extension JPass {
             }
             
             
-            var computers: [String: ComputerInventoryEntry] = [:]
+            var computers = [String: ComputerInventoryEntry]()
 
             do {
-                if let identifier = identifier {
-                    if identifier.type != .uuid {
-                        computers = try await jpsService.getComputersByIdentifier(identifier)
+                if !identifiers.isEmpty {
+                    for identifier in identifiers {
+                        if identifier.type != .uuid {
+                            computers.merge(try await jpsService.getComputersByIdentifier(identifier)) { (_, new) in
+                                new
+                            }
+                        }
                     }
                     
-                    pendingResults.results = pendingResults.results.filter {
+                    pendingResults.results = pendingResults.results.filter { result in
+                        // If we don't have any computer records, the user must've provided only management IDs as their identifier(s).
+                        // Otherwise, we use the management IDs available in the computer record.
                         if computers.isEmpty {
-                            return $0.user.clientManagementId == identifier.value
+                            return identifiers.contains { id in
+                                result.user.clientManagementId == id.value
+                            }
                         } else {
-                            return computers[$0.user.clientManagementId] != nil
+                            return computers[result.user.clientManagementId] != nil
                         }
                     }
                 }
@@ -119,8 +127,9 @@ extension JPass {
                 
                 ConsoleLogger.shared.info("\(pendingResults.results.count) pending rotations found.")
             } else {
-                if let identifier = identifier {
-                    ConsoleLogger.shared.info("No pending rotations were found for \(identifier.value).")
+                if !identifiers.isEmpty {
+                    let identifiersString = identifiers.map { $0.value }.joined(separator: ", ")
+                    ConsoleLogger.shared.info("No pending rotations were found for \(identifiersString).")
                 } else {
                     ConsoleLogger.shared.info("No pending rotations were found.")
                 }
@@ -130,7 +139,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case globalOptions, mapComputers, identifier, sortOrder
+            case globalOptions, mapComputers, identifiers, sortOrder
         }
     }
 }
