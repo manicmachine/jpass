@@ -37,9 +37,9 @@ extension JPass {
                 JPass.exit(withError: JPassError.InvalidState(error: "Password missing after validation."))
             }
 
-            let managementIds: [String]
+            let idMappings: [String: String]
             do {
-                managementIds = try await authenticateAndResolve()
+                idMappings = try await authenticateAndResolve()
             } catch {
                 JPass.exit(withError: error)
             }
@@ -51,22 +51,21 @@ extension JPass {
             // Create sendable variables to avoid concurrency warnings
             let _localAdmin = self.localAdmin
             let _generate = self.generate
-            let _password = self.password
             
             await withTaskGroup(of: Void.self) { group in
-                for managementId in managementIds {
+                for (identifier, managementId) in idMappings {
                     group.addTask {
                         do {
                             let pw = if _generate {
                                 PassPhraseGenerator.generatePhrase()
                             } else {
-                                _password!
+                                password
                             }
 
                             try await jpsService.setPasswordFor(computer: managementId, user: _localAdmin, password: pw)
-                            ConsoleLogger.shared.info("Password successfully set for \(managementId).")
+                            ConsoleLogger.shared.info("Password successfully set for \(identifier).")
                         } catch {
-                            ConsoleLogger.shared.error("Failed to set password for \(managementId): \(error.localizedDescription)")
+                            ConsoleLogger.shared.error("Failed to set password for \(identifier): \(error.localizedDescription)")
                         }
                     }
                 }

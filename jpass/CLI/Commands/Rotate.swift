@@ -23,9 +23,9 @@ extension JPass {
         var jpsService: JpsService?
         
         mutating func run() async {
-            let managementIds: [String]
+            let idMappings: [String: String]
             do {
-                managementIds = try await authenticateAndResolve()
+                idMappings = try await authenticateAndResolve()
             } catch {
                 JPass.exit(withError: error)
             }
@@ -39,13 +39,13 @@ extension JPass {
             let _guid = guidOptions.guid
 
             await withTaskGroup(of: Void.self) { group in
-                for managementId in managementIds {
+                for (identifier, managementId) in idMappings {
                     group.addTask {
                         do {
                             try await jpsService.rotatePasswordFor(computer: managementId, user: _localAdmin, guid: _guid)
-                            ConsoleLogger.shared.info("Password rotation triggered for \(managementId).")
+                            ConsoleLogger.shared.info("Password rotation triggered for \(identifier).")
                         } catch {
-                            ConsoleLogger.shared.error("Failed to rotate password for \(managementId): \(error.localizedDescription)")
+                            ConsoleLogger.shared.error("Failed to rotate password for \(identifier): \(error.localizedDescription)")
                         }
                     }
                 }

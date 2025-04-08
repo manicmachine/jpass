@@ -14,16 +14,15 @@ protocol ComputerRecordResolver {
     var credentialService: CredentialService? { get set }
     var jpsService: JpsService? { get set }
     
-    func resolveManagementId(from: JpsIdentifier) async throws -> String?
+    func resolveManagementId(for: JpsIdentifier) async throws -> String?
 }
 
 extension ComputerRecordResolver {
-    func resolveManagementId(from identifier: JpsIdentifier) async throws -> String? {
+    func resolveManagementId(for identifier: JpsIdentifier) async throws -> String? {
         guard let jpsService = jpsService else {
             throw JPassError.InvalidState(error: "Attempted to resolve identifier before JpsService has been initalized.")
         }
 
-        ConsoleLogger.shared.verbose("Resolving identifier '\(identifier.value)' to management ID")
         var managementId: String?
         let computers = try await jpsService.getComputersByIdentifier(identifier)
         

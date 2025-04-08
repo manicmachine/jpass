@@ -33,7 +33,7 @@ extension JPass {
         mutating func run() async {
             let managementId: String
             do {
-                managementId = try await authenticateAndResolve().first!
+                managementId = try await authenticateAndResolve().first!.value
             } catch {
                 JPass.exit(withError: error)
             }
