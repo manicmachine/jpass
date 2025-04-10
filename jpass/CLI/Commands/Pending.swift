@@ -21,6 +21,9 @@ extension JPass {
         @Flag(exclusivity: .exclusive, help: "Determines sort order.")
         var sortOrder: SortOrder = .oldestFirst
         
+        @Flag(name: .shortAndLong, help: "Adds a relative timestamp to the output.")
+        var relative: Bool = false
+        
         @OptionGroup
         var globalOptions: GlobalOptions
         
@@ -107,13 +110,22 @@ extension JPass {
                     pendingResults.results = pendingResults.results.sorted { $0.createdDate < $1.createdDate }
                 }
                 
-                let escapingMapComputers = mapComputers // Capture this in a let so we can safely pass it along to an escaping closure
+                // Create not-mutating copies of these so we can safely pass them to an escaping closure
+                let _mapComputers = mapComputers
+                let _relative = relative
+                let relativeDateTimeFormatter = RelativeDateTimeFormatter()
+                let now = Date()
+    
                 let table = TextTable<PendingEntry> {
                     let dateFormatter = DateFormatter()
                     dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
 
                     var columns = [Column(title: "Date", value: dateFormatter.string(from: $0.createdDate))]
-                    if escapingMapComputers { columns.append(Column(title: "Computer Name", value: $0.user.computerName ?? "-")) }
+                    if _relative {
+                        columns.append(Column(title: "Relative", value: relativeDateTimeFormatter.localizedString(fromTimeInterval: $0.createdDate.timeIntervalSince(now))))
+                    }
+                    
+                    if _mapComputers { columns.append(Column(title: "Computer Name", value: $0.user.computerName ?? "-")) }
 
                     columns.append(contentsOf: [Column(title: "Management ID", value: $0.user.clientManagementId),
                                                 Column(title: "User", value: $0.user.username),
@@ -139,7 +151,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case globalOptions, mapComputers, identifiers, sortOrder
+            case globalOptions, mapComputers, identifiers, sortOrder, relative
         }
     }
 }

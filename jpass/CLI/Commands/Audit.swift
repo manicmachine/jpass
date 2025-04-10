@@ -24,6 +24,9 @@ extension JPass {
         @Flag(exclusivity: .exclusive, help: "Determines sort order.")
         var sortOrder: SortOrder = .newestFirst
         
+        @Flag(name: .shortAndLong, help: "Adds a relative timestamp to the output.")
+        var relative: Bool = false
+        
         @OptionGroup
         var globalOptions: GlobalOptions
         
@@ -91,16 +94,30 @@ extension JPass {
             }
             
             let dateFormatter = DateFormatter()
+            let relativeDateTimeFormatter = RelativeDateTimeFormatter()
+            let now = Date()
+
             dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
+            
+            // Create not-mutating copies of these so we can safely pass them to an escaping closure
+            let _relative = relative
 
             let table = TextTable<UnifiedAuditEntry> {
                 let expirationString = $0.expirationTime != nil ? dateFormatter.string(from: $0.expirationTime!) : "-"
                 let dateSeenString = $0.dateSeen != nil ? dateFormatter.string(from: $0.dateSeen!) : "-"
+                let relativeExpirationString = $0.expirationTime != nil ? relativeDateTimeFormatter.localizedString(fromTimeInterval: $0.expirationTime!.timeIntervalSince(now)) : "-"
+                let relativeDateSeenString = $0.dateSeen != nil ? relativeDateTimeFormatter.localizedString(fromTimeInterval: $0.dateSeen!.timeIntervalSince(now)) : "-"
                 
-                return [Column(title: "Password", value: $0.password),
-                        Column(title: "Date Seen", value: dateSeenString),
-                        Column(title: "Expiration Time", value: expirationString),
-                        Column(title: "Viewed By", value: $0.viewedBy ?? "-")]
+                var columns = [Column]()
+
+                columns.append(Column(title: "Password", value: $0.password))
+                columns.append(Column(title: "Date Seen", value: dateSeenString))
+                if _relative { columns.append(Column(title: "Relative Date Seen", value: relativeDateSeenString)) }
+                columns.append(Column(title: "Expiration Time", value: expirationString))
+                if _relative { columns.append(Column(title: "Relative Expiration Time", value: relativeExpirationString)) }
+                columns.append(Column(title: "Viewed By", value: $0.viewedBy ?? "-"))
+                
+                return columns
             }
             
             table.print(unifiedAuditEntries, style: Style.psql)
@@ -109,7 +126,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, guidOptions, globalOptions, mapClients, sortOrder
+            case identifierOptions, guidOptions, globalOptions, mapClients, sortOrder, relative
         }
     }
 }

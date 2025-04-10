@@ -21,6 +21,9 @@ extension JPass {
         @Flag(exclusivity: .exclusive, help: "Determines sort order.")
         var sortOrder: SortOrder = .newestFirst
         
+        @Flag(name: .shortAndLong, help: "Adds a relative timestamp to the output.")
+        var relative: Bool = false
+        
         @OptionGroup
         var globalOptions: GlobalOptions
         
@@ -79,17 +82,38 @@ extension JPass {
             }
             
             let dateFormatter = DateFormatter()
+            let relativeDateTimeFormatter = RelativeDateTimeFormatter()
+            let now = Date()
+            
             dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
+            
+            
+            // Create not-mutating copies of these so we can safely pass them to an escaping closure
+            let _relative = relative
             
             let table = TextTable<HistoryEntry> {
                 let dateString = $0.eventTime != nil ? dateFormatter.string(from: $0.eventTime!) : "-"
+                var columns = [Column(title: "Date", value: dateString)]
                 
-                return [Column(title: "Date", value: dateString),
-                 Column(title: "Event Type", value: $0.eventType),
+                if _relative {
+                    let relativeDateString: String
+                    
+                    if let eventTime = $0.eventTime {
+                        relativeDateString = relativeDateTimeFormatter.localizedString(fromTimeInterval: eventTime.timeIntervalSince(now))
+                    } else {
+                        relativeDateString = "-"
+                    }
+                    
+                    columns.append(Column(title: "Relative Date", value: relativeDateString))
+                }
+                
+                columns.append(contentsOf: [Column(title: "Event Type", value: $0.eventType),
                  Column(title: "Username", value: $0.username),
                  Column(title: "Source", value: $0.userSource),
                  Column(title: "Viewed By", value: $0.viewedBy ?? "-")
-                ]
+                ])
+                
+                return columns
             }
             
             table.print(historyResults, style: Style.psql)
@@ -98,7 +122,7 @@ extension JPass {
         }
         
         private enum CodingKeys: CodingKey {
-            case identifierOptions, globalOptions, mapClients, sortOrder
+            case identifierOptions, globalOptions, mapClients, sortOrder, relative
         }
     }
 }
