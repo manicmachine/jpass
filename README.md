@@ -60,9 +60,7 @@ While Swift supports all major operating systems, JPass currently only supports 
 
 JPass is a self-contained binary so it can be installed anywhere. The recommended method is:
 1. Download the [latest release](https://github.com/manicmachine/jpass/releases/latest)
-2. Move it to `/usr/local/bin/` 
-     - JPass can be installed anywhere, but this path is included in your environment by default
-3. Set it as executable by running `chmod +x /usr/local/bin/jpass`
+2. Run the provided PKG, which will install `jpass` to `/usr/local/bin/jpass`
 
 Now you can run `jpass` from anywhere in your favorite shell.
 
