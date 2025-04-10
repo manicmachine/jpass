@@ -9,7 +9,7 @@ import ArgumentParser
 import Foundation
 import OSLog
 
-struct GlobalOptions: ParsableCommand {
+struct GlobalOptions: ParsableArguments {
     static let userKey = "JPASS_USER"
     static let serverKey = "JPASS_SERVER"
     static let clientIdKey = "JPASS_CLIENT_ID"
