@@ -2,15 +2,12 @@
 
 ## Overview
 
-JPass is a command-line interface (CLI) written in Swift designed to streamline the administrative experience for interacting with [Jamf Pro's LAPS (Local Administrator Password Solution)](https://www.jamf.com/blog/jamf-pro-laps-manage-local-admin-passwords/).
-Built to reduce the friction of adopting best practices for managing local administrator accounts in Jamf Pro environments.
-
-Written by Corey Oliphant: A Jamf System Administrator and former Jamf Software Engineer/Technical Support Engineer.
+JPass is a Swift CLI tool that makes managing [Jamf Pro's LAPS (Local Administrator Password Solution)](https://www.jamf.com/blog/jamf-pro-laps-manage-local-admin-passwords/) fast, secure, and scriptable - simplifying the adoption and management of LAPS. This allows administrators to quickly view, set, and rotate local admin passwords without needing to navigate the Jamf Pro web interface for common tasks.
 
 ## Key Features
 ### 🆔 Flexible Identifier Lookups
 
-Perform lookups using one of several supported identifiers: Jamf Id, computer name, management id, asset tag, bar code, or serial number. If multiple results are returned, admins are prompted to select a specific host before proceeding.
+Perform lookups using one of several supported identifiers: **Jamf Id, computer name, management id, asset tag, bar code, or serial number**. If multiple results are returned, admins are prompted to select a specific host before proceeding.
 
 ### ↩️ Quick & Convenient Password Retrieval
 
@@ -19,15 +16,15 @@ or to be printed in a NATO phonetic format for clear verbal communication.
 
 ### 👶🏻 Simple Password Rotations
 
-Manually trigger password rotations quickly without exposing the current password.
+Securely trigger password rotations quickly without exposing the current password.
 
-### 🛠️ Set Custom Passwords Manually, Programmatically, Or Via A Builtin Passphrase Generator
+### 🛠️ Flexible Password Setting (Manual, Programmatic, Generated)
 
-Set LAPS passwords by either manaully providing a password, piping one in via STDIN from your favorite password generator, or by generating it using a built-in passphrase generator capable of creating over **_48 Billion_** unique phrases ranging from 14 to 29 characters long in the format `<adverb>-<verb>-<noun>` (e.g. radically-baffled-hero, obviously-panicked-volume)
+Set LAPS passwords by either manually providing a password, piping one in via STDIN from your favorite password generator, or by generating it using a built-in passphrase generator capable of creating over **_48 Billion_** unique phrases ranging from 14 to 29 characters long in the format `<adverb>-<verb>-<noun>` (e.g. radically-baffled-hero, obviously-panicked-volume)
 
 ### 🔍 Investigate LAPS usage via History and Audit Trails
 
-Easily view the history of all viewed or rotated passwords for a host or dig a bit deeper by peeking at it's audit trail. 
+Easily view the history of all viewed or rotated passwords for a host or dig a bit deeper by peeking at its audit trail. 
 Notice an API client was the culprit but not sure which one the id maps to? JPass provides convenience flags to quickly
 map all API client IDs to their respective display name. No more poking around the JPS GUI to figure out whodunit.
 
@@ -39,27 +36,35 @@ mean nothing to you? Pass a convenience flag to map management ids to their resp
 ### ⚙️ Easy Jamf Pro LAPS Configuration
 
 Take the friction out of viewing or configuring your Jamf Pro's LAPS settings. See time values in human-readable format (who knows how many
-days 7776000 seconds is off hand...) or quickly toggle settings - all modifications prompt for confirmation unless explicitly stated otherwise. 
+days 7776000 seconds is off hand...) or quickly toggle settings - all modifications prompt for confirmation unless explicitly given via a flag. 
 
-### 🔐 Securely Cache Credentials
+### 🔐 Secure Credential Caching (macOS Keychain)
 
-Once successfully authenticated, securely cache credentials in your local keychain on a per user per server per port basis (here's lookin' at you MSPs) - or don't by explicitly disabling credential caching. Want to remove a specific cached value? JPass caches credentials with human-readable labels in your local keychain. 
+Once successfully authenticated, JPass securely caches credentials in your local keychain on a per-user, per-server, per-port basis (here's lookin' at you MSPs 👋) - or don't by explicitly disabling credential caching. Want to remove a specific cached value? JPass caches credentials with human-readable labels in your local keychain. 
 Simply open **Keychain Access**, select the **login** keychain, search for **JPass**, and delete the offending records.
 
 ### 👥 Support For Jamf Pro Users & API Clients Alike
 
 Supports using either a Jamf Pro user or an API client, supporting credential caching for both.
 
-### 👮🏻 Built With Security In Mind
+### 👮🏻 Security-Focused Design
 
-Makes sure all displayed passwords trigger rotations, all communications happen over HTTPS, 
-intentionally disallows the ability to pipe credentials (sorry, you'll have to type type your password or secret in like a pleb), and more. All design decisions are made with security as a top priority. 
+All displayed passwords trigger rotations, all communications happen over HTTPS, JPass triggered rotations utilize HEAD requests (requests only headers to be sent back, meaning the password never leaves the JPS), credentials cached in the local macOS keychain (no iCloud syncing here folks), cached credentials get destroyed upon recieving an unathorized response, and more. All design decisions are made with security in mind. 
+
+## Requirements
+- **Operating System**: macOS 14.6 or higher
+- **Jamf Pro**: 10.46.0 or higher
 
 ## Installation
-While Swift supports all major operating systems, JPass currently only supports MacOS since it leverages Mac specific APIs to access the local keychain. This may change in the future if there's enough demand.
+While Swift supports all major operating systems, JPass currently only supports macOS since it leverages macOS-specific APIs to access the local keychain. This may change in the future if there's enough demand.
 
-JPass is a self-contained binary so it can be installed anywhere. The recommended method is to download the latest release and 
-move it to `/usr/local/bin/` as this path is included in your environment by default - making it easily accessible anywhere in your shell.
+JPass is a self-contained binary so it can be installed anywhere. The recommended method is:
+1. Download the [latest release](https://github.com/manicmachine/jpass/releases/latest)
+2. Move it to `/usr/local/bin/` 
+     - JPass can be installed anywhere, but this path is included in your environment by default
+3. Set it as executable by running `chmod +x /usr/local/bin/jpass`
+
+Now you can run `jpass` from anywhere in your favorite shell.
 
 ## Configuration
 JPass supports the following (optional) environment variables:
@@ -76,19 +81,20 @@ JPass supports the following (optional) environment variables:
   - Can be overriden with the `--ladmin|-l` options
 - `JPASS_NO_CACHE`: Disables credential caching
   - Equivalent to the `--no-cache` option
-  - The value is irrelevant, as long as it's set to something
+  - The value is irrelevant, as long as it's set
 
 To easily configure these values, you can run `export <variable>='<value>'` in your shell. 
 Example: `export JPASS_SERVER='your.jps.url'`. 
 
 To persist these changes between sessions, add your export statements to your shell's rc file (~/.zshrc by default). You can either
-manually edit the file with your favorite text editor, or run `echo "export <variable>='<value>'" >> ~/.zshrc`. 
+manually edit the file with your favorite text editor, or run `echo "export <variable>='<value>'" >> ~/.zshrc`. Note that you'll need to start a new shell or run `source ~/.zshrc` for changes to take effect.
+
 Example: `echo "export JPASS_SERVER='your.jps.url'" >> ~/.zshrc`
 
-## Usage
+## Basic Usage
 All examples assume the above JPass environment variables have been configured. If not, add the options `--server|-s <server>` and `--user|-u <user>` to each command. 
 
-For detailed usage, all commands support the `--help|-h` flag. Alternatively, you can use `jpass help <command>`. 
+For expanded/detailed usage, all commands support the `--help|-h` flag. Alternatively, you can use `jpass help <command>`. 
 
 All subcommands support aliases to reduce the number of keystrokes (typing is hard, I know), such as `pen` and `p` for `pending`. All aliases can be viewed by checking the help text. 
 
@@ -99,22 +105,26 @@ All subcommands support aliases to reduce the number of keystrokes (typing is ha
   ```
   `get` is the default command, so this can be reduced to `jpass <identifier>`.
   
-  If `--nato|-n` is provided, the retrieved password will be printed to STDOUT in addition along with a NATO phonetic pronounciation guide.
+  If `--nato|-n` is provided, the retrieved password will be printed to STDOUT in addition along with a NATO phonetic pronunciation guide.
   
   If `--copy|-c` is provided, the retrieved password will be copied directly to your clipboard instead of being printed to STDOUT.
-- **Rotate a LAPS password**:
+- **Rotate LAPS password**:
   ```bash
-  jpass rotate <identifier>
+  jpass rotate <identifier> ...
   ```
 - **Set a LAPS password**:
   ```bash
-  jpass set <identifier> [--pass|-p <password>]
+  jpass set <identifier> ... [--pass|-p <password>] [--generate|-g]
   ```
-  Using the `--pass|-p` option is optional. If not given, JPass will prompt for the new password.
+  Using `--pass|-p` is optional. If not provided, JPass will prompt for the new password. 
+
+  **⚠️ If multiple identifiers are provided while explicitly setting the password, each device will be assigned the same password.** The intent here is to allow admins to set a predefined password across multiple computers for extended periods of work before being manually rotated upon completion.
+
 - **Set a LAPS password to a random passphrase**:
   ```bash
-  jpass set <identifier> [--generate|-g]
+  jpass set <identifier> ... [--generate|-g]
   ```
+    Using the `--generate|-g` option will result in JPass assigning a random 14-29 character 3-word phrase for the password in the format `<adverb>-<verb>-<noun>`, e.g. radically-baffled-hero. 
 - **List LAPS accounts for a host**:
   ```bash
   jpass accounts <identifier>
@@ -129,9 +139,10 @@ All subcommands support aliases to reduce the number of keystrokes (typing is ha
   ```
 - **View pending rotations**
   ```bash
-  jpass pending [identifier] [--map-computers|-m]
+  jpass pending [identifier ...] [--map-computers|-m]
   ```
-  If an `<identifier>` is provided, pending results will be filtered down to only that host.
+  If one or more `identifier`s are provided, pending results will be filtered down to those hosts.
+
   If `--map-computers|-m` is provided, returned management Ids will be mapped to their respective computer names.
 - **View global LAPS configuration**
   ```bash
@@ -149,6 +160,10 @@ Contributions are welcome! To contribute:
 1. Fork the repository.
 2. Create a new branch for your feature or bug fix.
 3. Submit a pull request with a detailed description of your changes.
+
+## Created By
+
+Written by Corey Oliphant: A Jamf System Administrator and former Jamf Software Engineer/Technical Support Engineer.
 
 ## License
 MIT License
