@@ -266,7 +266,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YJD5PF6C3Z;
 				ENABLE_HARDENED_RUNTIME = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.coliphant.jpas;
+				PRODUCT_BUNDLE_IDENTIFIER = com.coliphant.jpass;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -280,7 +280,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YJD5PF6C3Z;
 				ENABLE_HARDENED_RUNTIME = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.coliphant.jpas;
+				PRODUCT_BUNDLE_IDENTIFIER = com.coliphant.jpass;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
