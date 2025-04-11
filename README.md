@@ -96,7 +96,8 @@ For expanded/detailed usage, all commands support the `--help|-h` flag. Alternat
 
 All subcommands support aliases to reduce the number of keystrokes (typing is hard, I know), such as `pen` and `p` for `pending`. All aliases can be viewed by checking the help text. 
 
-**NOTE: `<identifier>` can be one of the following: Jamf Id, computer name, management id, asset tag, bar code, or serial number. If multiple results are returned, admins are prompted to select a specific host before proceeding.**
+>[!Note]
+>`<identifier>` can be one of the following: Jamf Id, computer name, management id, asset tag, bar code, or serial number. If multiple results are returned, admins are prompted to select a specific host before proceeding.**
 - **Retrieve a LAPS password**:
   ```bash
   jpass get <identifier> [--nato|-n] [--copy|-c]
@@ -116,8 +117,10 @@ All subcommands support aliases to reduce the number of keystrokes (typing is ha
   ```
   Using `--pass|-p` is optional. If not provided, JPass will prompt for the new password. 
 
-  **⚠️ If multiple identifiers are provided while explicitly setting the password, each device will be assigned the same password.** 
-  - The intent here is to allow admins to set a predefined password across multiple computers for extended periods of work before being manually rotated upon completion.
+> [!Warning]
+> If multiple identifiers are provided while explicitly setting the password, each device will be assigned the same password.
+> 
+> The intent here is to allow admins to set a predefined password across multiple computers for extended periods of work before being manually rotated upon completion.
 
 - **Set a LAPS password to a random passphrase**:
   ```bash
