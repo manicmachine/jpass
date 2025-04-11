@@ -116,13 +116,16 @@ All subcommands support aliases to reduce the number of keystrokes (typing is ha
   ```
   Using `--pass|-p` is optional. If not provided, JPass will prompt for the new password. 
 
-  **⚠️ If multiple identifiers are provided while explicitly setting the password, each device will be assigned the same password.** The intent here is to allow admins to set a predefined password across multiple computers for extended periods of work before being manually rotated upon completion.
+  **⚠️ If multiple identifiers are provided while explicitly setting the password, each device will be assigned the same password.** 
+  - The intent here is to allow admins to set a predefined password across multiple computers for extended periods of work before being manually rotated upon completion.
 
 - **Set a LAPS password to a random passphrase**:
   ```bash
   jpass set <identifier> ... [--generate|-g]
   ```
     Using the `--generate|-g` option will result in JPass assigning a random 14-29 character 3-word phrase for the password in the format `<adverb>-<verb>-<noun>`, e.g. radically-baffled-hero. 
+
+    If multiple identifiers are provided while using the `--generate|-g` flag, each device will be assigned a unique passphrase.
 - **List LAPS accounts for a host**:
   ```bash
   jpass accounts <identifier>
@@ -161,7 +164,7 @@ Contributions are welcome! To contribute:
 
 ## Created By
 
-Written by Corey Oliphant: A Jamf System Administrator and former Jamf Software Engineer/Technical Support Engineer.
+Created by Corey Oliphant: A Jamf System Administrator and former Jamf Software Engineer/Technical Support Engineer.
 
 ## License
 MIT License
