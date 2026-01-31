@@ -10,6 +10,7 @@ import TextTable
 
 extension JPass {
     struct Audit: AsyncParsableCommand, JpsAuthComputerResolving {
+        // swiftlint:disable:next line_length
         static let configuration = CommandConfiguration(abstract: "Retrieves the full history of all local admin passwords for a given host. Includes the password, who viewed it, and when it was viewed.", aliases: ["aud", "u"])
         
         @OptionGroup
@@ -42,7 +43,7 @@ extension JPass {
             }
             
             guard let jpsService = jpsService else {
-                JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
+                JPass.exit(withError: JPassError.invalidState(error: "Invalid state: Missing JPS service after authentication."))
             }
             
             let auditResponse: [PasswordAuditEntry]
@@ -59,7 +60,7 @@ extension JPass {
             }
 
             var unifiedAuditEntries: [UnifiedAuditEntry] = []
-            auditResponse.forEach{ passwordAuditEntry in
+            auditResponse.forEach { passwordAuditEntry in
                 if passwordAuditEntry.audits.isEmpty {
                     unifiedAuditEntries.append(UnifiedAuditEntry(passwordEntry: passwordAuditEntry, auditEntry: nil))
                 } else {
@@ -83,9 +84,9 @@ extension JPass {
                         result[client.clientId] = client.displayName
                     }
                     
-                    for i in unifiedAuditEntries.indices {
-                        if let id = unifiedAuditEntries[i].viewedBy, let displayName = apiClients[id] {
-                            unifiedAuditEntries[i].viewedBy = displayName
+                    for index in unifiedAuditEntries.indices {
+                        if let id = unifiedAuditEntries[index].viewedBy, let displayName = apiClients[id] {
+                            unifiedAuditEntries[index].viewedBy = displayName
                         }
                     }
                 } catch {
@@ -97,12 +98,9 @@ extension JPass {
             let relativeDateTimeFormatter = RelativeDateTimeFormatter()
             let now = Date()
 
-            dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
-            
-            // Create not-mutating copies of these so we can safely pass them to an escaping closure
-            let _relative = relative
+            dateFormatter.dateFormat = GlobalSettings.dateFormat
 
-            let table = TextTable<UnifiedAuditEntry> {
+            let table = TextTable<UnifiedAuditEntry> { [relative] in
                 let expirationString = $0.expirationTime != nil ? dateFormatter.string(from: $0.expirationTime!) : "-"
                 let dateSeenString = $0.dateSeen != nil ? dateFormatter.string(from: $0.dateSeen!) : "-"
                 let relativeExpirationString = $0.expirationTime != nil ? relativeDateTimeFormatter.localizedString(fromTimeInterval: $0.expirationTime!.timeIntervalSince(now)) : "-"
@@ -112,9 +110,9 @@ extension JPass {
 
                 columns.append(Column(title: "Password", value: $0.password))
                 columns.append(Column(title: "Date Seen", value: dateSeenString))
-                if _relative { columns.append(Column(title: "Relative Date Seen", value: relativeDateSeenString)) }
+                if relative { columns.append(Column(title: "Relative Date Seen", value: relativeDateSeenString)) }
                 columns.append(Column(title: "Expiration Time", value: expirationString))
-                if _relative { columns.append(Column(title: "Relative Expiration Time", value: relativeExpirationString)) }
+                if relative { columns.append(Column(title: "Relative Expiration Time", value: relativeExpirationString)) }
                 columns.append(Column(title: "Viewed By", value: $0.viewedBy ?? "-"))
                 
                 return columns
@@ -130,4 +128,3 @@ extension JPass {
         }
     }
 }
-

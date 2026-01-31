@@ -14,9 +14,9 @@ struct JpsIdentifier: ExpressibleByArgument {
     
     let value: String
     var type: IdType {
-        if let _ = UUID(uuidString: value) {
+        if UUID(uuidString: value) != nil {
             .uuid
-        } else if let _ = Int(value) {
+        } else if Int(value) != nil {
             .int
         } else {
             .string

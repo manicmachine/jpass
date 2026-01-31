@@ -21,7 +21,7 @@ class ConsoleLogger {
     
     func error(_ message: String) {
         do {
-            try FileHandle.standardError.write(contentsOf: "\(message)\n".data(using: .utf8)!)
+            try FileHandle.standardError.write(contentsOf: Data("\(message)\n".utf8))
         } catch {
             print("Error writing to standard error: \(error)")
             exit(1)

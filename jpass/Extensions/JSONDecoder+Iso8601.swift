@@ -8,7 +8,7 @@
 import Foundation
 
 extension JSONDecoder {
-    static func Iso8601() -> JSONDecoder {
+    static func iso8601() -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .custom { decoder in
             let isoFormatter = ISO8601DateFormatter()

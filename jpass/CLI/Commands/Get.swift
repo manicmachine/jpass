@@ -39,7 +39,7 @@ extension JPass {
             }
             
             guard let jpsService = jpsService else {
-                JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
+                JPass.exit(withError: JPassError.invalidState(error: "Invalid state: Missing JPS service after authentication."))
             }
             
             var password: String?

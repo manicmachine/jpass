@@ -15,6 +15,7 @@ struct GlobalOptions: ParsableArguments {
     static let clientIdKey = "JPASS_CLIENT_ID"
     static let noCacheKey = "JPASS_NO_CACHE"
     
+    // swiftlint:disable:next line_length
     @Option(name: .shortAndLong, help: "The Jamf Pro server URL and port (if not standard). If no port is defined, the default port 443 will be used for Jamf Cloud instances and 8443 for everything else. Can be set using the environment variable \(serverKey).")
     var server: String?
     
@@ -69,7 +70,7 @@ struct GlobalOptions: ParsableArguments {
             }
         }
         
-        if let _ = ProcessInfo.processInfo.environment[Self.noCacheKey] {
+        if ProcessInfo.processInfo.environment[Self.noCacheKey] != nil {
             noCache = true
         }
         

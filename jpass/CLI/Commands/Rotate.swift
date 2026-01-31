@@ -31,18 +31,14 @@ extension JPass {
             }
             
             guard let jpsService = jpsService else {
-                JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
+                JPass.exit(withError: JPassError.invalidState(error: "Invalid state: Missing JPS service after authentication."))
             }
-
-            // Create sendable variables to avoid concurrency warnings
-            let _localAdmin = guidOptions.localAdmin!
-            let _guid = guidOptions.guid
 
             await withTaskGroup(of: Void.self) { group in
                 for (identifier, managementId) in idMappings {
-                    group.addTask {
+                    group.addTask { [localAdmin = guidOptions.localAdmin!, guid = guidOptions.guid] in
                         do {
-                            try await jpsService.rotatePasswordFor(computer: managementId, user: _localAdmin, guid: _guid)
+                            try await jpsService.rotatePasswordFor(computer: managementId, user: localAdmin, guid: guid)
                             ConsoleLogger.shared.info("Password rotation triggered for \(identifier).")
                         } catch {
                             ConsoleLogger.shared.error("Failed to rotate password for \(identifier): \(error.localizedDescription)")

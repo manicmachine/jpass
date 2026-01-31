@@ -7,7 +7,7 @@
 
 class GlobalSettings {
     static let shared = GlobalSettings()
-    static let DATE_FORMAT: String = "yyyy-MM-dd HH:mm:ss z"
+    static let dateFormat: String = "yyyy-MM-dd HH:mm:ss z"
     
     var verbose = false
 }

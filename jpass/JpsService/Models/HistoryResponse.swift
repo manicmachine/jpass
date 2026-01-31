@@ -12,7 +12,7 @@ struct HistoryResponse: Codable {
     let results: [HistoryEntry]
 }
 
-struct HistoryEntry: Codable , CustomStringConvertible {
+struct HistoryEntry: Codable, CustomStringConvertible {
     let username: String
     let userSource: String
     let eventType: String

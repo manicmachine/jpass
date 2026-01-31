@@ -8,15 +8,15 @@
 import Foundation
 
 enum JPassError: LocalizedError {
-    case Error(error: String)
-    case InvalidState(error: String)
-    case NoResults(error: String = "No results found")
+    case error(error: String)
+    case invalidState(error: String)
+    case noResults(error: String = "No results found")
     
     var errorDescription: String? {
         switch self {
-            case .Error(let error): return error
-            case .InvalidState(let error): return error
-            case .NoResults(let error): return error
+        case .error(let error): return error
+        case .invalidState(let error): return error
+        case .noResults(let error): return error
         }
     }
 }

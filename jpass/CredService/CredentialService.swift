@@ -14,7 +14,6 @@ class CredentialService {
     private var password: String?
     var passwordFromCache: Bool = false
     
-  
     init(for username: String, on server: String, using port: String, skipCache: Bool) {
         self.username = username
         self.server = server
@@ -61,8 +60,8 @@ class CredentialService {
             ConsoleLogger.shared.verbose("Skip cache enabled, skipping keychain lookup.")
         }
         if password == nil {
-            if let pw = CredentialService.promptForPassword(with: "\(username)'s password: ") {
-                password = pw
+            if let pass = CredentialService.promptForPassword(with: "\(username)'s password: ") {
+                password = pass
             }
         }
 
@@ -87,12 +86,12 @@ class CredentialService {
 
         do {
             guard let password = password else {
-                throw JPassError.InvalidState(error: "Attempted to cache password when none is set.")
+                throw JPassError.invalidState(error: "Attempted to cache password when none is set.")
             }
 
             var error: Unmanaged<CFError>?
             guard let keychainAcl = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly, .userPresence, &error) else {
-                throw JPassError.Error(error: "Failed to create keychain ACL: \(error?.takeUnretainedValue().localizedDescription ?? "Unknown error")")
+                throw JPassError.error(error: "Failed to create keychain ACL: \(error?.takeUnretainedValue().localizedDescription ?? "Unknown error")")
             }
             
             // Check if keychain item already exists
@@ -124,7 +123,7 @@ class CredentialService {
             if status != errSecSuccess {
                 let statusMessage = SecCopyErrorMessageString(status, nil)!
                 ConsoleLogger.shared.error("Failed to store password in keychain: \(statusMessage)")
-                throw JPassError.Error(error: "Failed to store password in keychain: \(statusMessage)")
+                throw JPassError.error(error: "Failed to store password in keychain: \(statusMessage)")
             }
             
             ConsoleLogger.shared.verbose("Credentials successfully cached.")
@@ -158,10 +157,10 @@ class CredentialService {
     }
     
     static func promptForPassword(with message: String, hideInput: Bool = true) -> String? {
-        var password: String? = nil
+        var password: String?
         if hideInput {
-            if let pw = getpass(message) {
-                password = String(cString: pw)
+            if let pass = getpass(message) {
+                password = String(cString: pass)
             }
         } else {
             print(message, terminator: "")

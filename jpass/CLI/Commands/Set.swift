@@ -34,7 +34,7 @@ extension JPass {
         
         mutating func run() async {
             guard let password = password else {
-                JPass.exit(withError: JPassError.InvalidState(error: "Password missing after validation."))
+                JPass.exit(withError: JPassError.invalidState(error: "Password missing after validation."))
             }
 
             let idMappings: [String: String]
@@ -45,24 +45,20 @@ extension JPass {
             }
             
             guard let jpsService = jpsService else {
-                JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
+                JPass.exit(withError: JPassError.invalidState(error: "Invalid state: Missing JPS service after authentication."))
             }
-            
-            // Create sendable variables to avoid concurrency warnings
-            let _localAdmin = self.localAdmin
-            let _generate = self.generate
             
             await withTaskGroup(of: Void.self) { group in
                 for (identifier, managementId) in idMappings {
-                    group.addTask {
+                    group.addTask { [localAdmin, generate] in
                         do {
-                            let pw = if _generate {
+                            let password = if generate {
                                 PassPhraseGenerator.generatePhrase()
                             } else {
                                 password
                             }
 
-                            try await jpsService.setPasswordFor(computer: managementId, user: _localAdmin, password: pw)
+                            try await jpsService.setPasswordFor(computer: managementId, user: localAdmin, password: password)
                             ConsoleLogger.shared.info("Password successfully set for \(identifier).")
                         } catch {
                             ConsoleLogger.shared.error("Failed to set password for \(identifier): \(error.localizedDescription)")
@@ -77,8 +73,8 @@ extension JPass {
                 if generate {
                     password = PassPhraseGenerator.generatePhrase()
                 } else {
-                    if let pw = CredentialService.promptForPassword(with: "Password for \(localAdmin): ", hideInput: false) {
-                        password = pw
+                    if let pass = CredentialService.promptForPassword(with: "Password for \(localAdmin): ", hideInput: false) {
+                        password = pass
                     } else {
                         ConsoleLogger.shared.error("No password provided. Exiting.")
                         JPass.exit(withError: ExitCode(1))
@@ -94,4 +90,3 @@ extension JPass {
         }
     }
 }
-

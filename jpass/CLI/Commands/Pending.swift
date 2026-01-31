@@ -10,6 +10,7 @@ import TextTable
 
 extension JPass {
     struct Pending: AsyncParsableCommand, JpsAuthenticating {
+        // swiftlint:disable:next line_length
         static let configuration = CommandConfiguration(abstract: "Retrieves all devices and usernames pending a password rotation. If identifiers are provided, results will be filtered to only those devices.", aliases: ["pen", "p"])
         
         @Argument(help: "One or more of the following identifiers: Jamf id, computer name, management id, asset tag, bar code, or serial number.")
@@ -38,7 +39,7 @@ extension JPass {
             }
 
             guard let jpsService = jpsService else {
-                JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
+                JPass.exit(withError: JPassError.invalidState(error: "Invalid state: Missing JPS service after authentication."))
             }
             
             var pendingResults: PendingResponse
@@ -49,16 +50,13 @@ extension JPass {
                 JPass.exit(withError: ExitCode(1))
             }
             
-            
             var computers = [String: ComputerInventoryEntry]()
 
             do {
                 if !identifiers.isEmpty {
-                    for identifier in identifiers {
-                        if identifier.type != .uuid {
+                    for identifier in identifiers where identifier.type != .uuid {
                             computers.merge(try await jpsService.getComputersByIdentifier(identifier)) { (_, new) in
                                 new
-                            }
                         }
                     }
                     
@@ -81,10 +79,10 @@ extension JPass {
             
             if mapComputers {
                 if !computers.isEmpty {
-                    for i in pendingResults.results.indices {
-                        let id = pendingResults.results[i].user.clientManagementId
+                    for index in pendingResults.results.indices {
+                        let id = pendingResults.results[index].user.clientManagementId
                         if let entry = computers[id] {
-                            pendingResults.results[i].user.computerName = entry.general.name
+                            pendingResults.results[index].user.computerName = entry.general.name
                         }
                     }
                 } else {
@@ -92,8 +90,8 @@ extension JPass {
                     
                     do {
                         let computerResults = try await jpsService.getComputersByManagementId(managementIds)
-                        for i in pendingResults.results.indices {
-                            pendingResults.results[i].user.computerName = computerResults[pendingResults.results[i].user.clientManagementId]
+                        for index in pendingResults.results.indices {
+                            pendingResults.results[index].user.computerName = computerResults[pendingResults.results[index].user.clientManagementId]
                         }
                     } catch {
                         ConsoleLogger.shared.error("An error occurred while attempting to map computers by their management id: \(error)")
@@ -101,7 +99,6 @@ extension JPass {
                     }
                 }
             }
-
             
             if !pendingResults.results.isEmpty {
                 if sortOrder == .newestFirst {
@@ -110,22 +107,19 @@ extension JPass {
                     pendingResults.results = pendingResults.results.sorted { $0.createdDate < $1.createdDate }
                 }
                 
-                // Create not-mutating copies of these so we can safely pass them to an escaping closure
-                let _mapComputers = mapComputers
-                let _relative = relative
                 let relativeDateTimeFormatter = RelativeDateTimeFormatter()
                 let now = Date()
     
-                let table = TextTable<PendingEntry> {
+                let table = TextTable<PendingEntry> { [mapComputers, relative] in
                     let dateFormatter = DateFormatter()
-                    dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
+                    dateFormatter.dateFormat = GlobalSettings.dateFormat
 
                     var columns = [Column(title: "Date", value: dateFormatter.string(from: $0.createdDate))]
-                    if _relative {
+                    if relative {
                         columns.append(Column(title: "Relative", value: relativeDateTimeFormatter.localizedString(fromTimeInterval: $0.createdDate.timeIntervalSince(now))))
                     }
                     
-                    if _mapComputers { columns.append(Column(title: "Computer Name", value: $0.user.computerName ?? "-")) }
+                    if mapComputers { columns.append(Column(title: "Computer Name", value: $0.user.computerName ?? "-")) }
 
                     columns.append(contentsOf: [Column(title: "Management ID", value: $0.user.clientManagementId),
                                                 Column(title: "User", value: $0.user.username),

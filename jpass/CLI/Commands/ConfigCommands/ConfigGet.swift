@@ -26,7 +26,7 @@ extension JPass.Config {
             }
 
             guard let jpsService = jpsService else {
-                JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
+                JPass.exit(withError: JPassError.invalidState(error: "Invalid state: Missing JPS service after authentication."))
             }
             
             let settingsResponse: GetSettingsResponse

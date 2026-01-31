@@ -19,16 +19,16 @@ protocol JpsAuthenticating {
 extension JpsAuthenticating {
     mutating func authenticate() async throws {
         guard let user = globalOptions.authenticatingUser, let server = globalOptions.server else {
-            throw JPassError.InvalidState(error: "Missing authenticatingUser or server after argument validation.")
+            throw JPassError.invalidState(error: "Missing authenticatingUser or server after argument validation.")
         }
         
         self.jpsService = try JpsService(url: server)
         guard let jpsService = self.jpsService else {
-            throw JPassError.InvalidState(error: "Jps Service missing after initialization.")
+            throw JPassError.invalidState(error: "Jps Service missing after initialization.")
         }
         
         self.credentialService = CredentialService(for: user, on: jpsService.baseUrl, using: jpsService.port, skipCache: self.globalOptions.noCache)
-        guard let credentialService = self.credentialService else { throw JPassError.InvalidState(error: "Credential Service missing after initialization.")}
+        guard let credentialService = self.credentialService else { throw JPassError.invalidState(error: "Credential Service missing after initialization.")}
         
         // This loop accounts for when the cached credentials provided by CredentialService are no longer valid (JPS returns 401).
         // In which case we then delete the existing cache and prompt for new credentials.
@@ -43,12 +43,12 @@ extension JpsAuthenticating {
                 }
                 
                 break
-            } catch JpsError.Unauthorized {
+            } catch JpsError.unauthorized {
                 if credentialService.passwordFromCache {
                     ConsoleLogger.shared.error("Cached credentials resulted in 401 from the JPS. Deleting existing cache and prompting for new credentials.")
                     credentialService.deleteCredentials()
                 } else {
-                    throw JpsError.Unauthorized
+                    throw JpsError.unauthorized
                 }
             }
         }

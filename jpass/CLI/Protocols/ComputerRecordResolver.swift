@@ -8,9 +8,9 @@ import ArgumentParser
 import TextTable
 
 protocol ComputerRecordResolver {
-    associatedtype IO: IdentifierOption
+    associatedtype IDOptions: IdentifierOption
 
-    var identifierOptions: IO { get set }
+    var identifierOptions: IDOptions { get set }
     var credentialService: CredentialService? { get set }
     var jpsService: JpsService? { get set }
     
@@ -20,7 +20,7 @@ protocol ComputerRecordResolver {
 extension ComputerRecordResolver {
     func resolveManagementId(for identifier: JpsIdentifier) async throws -> String? {
         guard let jpsService = jpsService else {
-            throw JPassError.InvalidState(error: "Attempted to resolve identifier before JpsService has been initalized.")
+            throw JPassError.invalidState(error: "Attempted to resolve identifier before JpsService has been initalized.")
         }
 
         var managementId: String?
@@ -28,7 +28,7 @@ extension ComputerRecordResolver {
         
         if computers.count > 1 {
             ConsoleLogger.shared.info("Multiple computers found for identifier: \(identifier.value)")
-            var results = Dictionary<String, ComputerInventoryEntry>()
+            var results: [String: ComputerInventoryEntry] = [:]
             for (_, computerInventoryEntry) in computers {
                 results[computerInventoryEntry.id] = computerInventoryEntry
             }
@@ -49,7 +49,7 @@ extension ComputerRecordResolver {
                     choice = input
                 }
                 
-                if let _ = results[choice] {
+                if results[choice] != nil {
                     managementId = choice
                 } else {
                     print("Invalid option provided.")

@@ -23,7 +23,7 @@ struct GuidOptions: ParsableArguments {
             throw ValidationError("Invalid 'guid' value provided, must be a valid UUID.")
         }
         
-        if let _ = guid, localAdmin == nil {
+        if guid != nil, localAdmin == nil {
             throw ValidationError("The 'guid' option requires 'ladmin' to be provided.")
         }
     }

@@ -10,6 +10,7 @@ import TextTable
 
 extension JPass {
     struct History: AsyncParsableCommand, JpsAuthComputerResolving {
+        // swiftlint:disable:next line_length
         static let configuration = CommandConfiguration(abstract: "Retrieves the full history of all local admin passwords for a given host. Includes date created, date last seen, expiration time, and rotational status.", aliases: ["his", "h"])
         
         @OptionGroup
@@ -39,7 +40,7 @@ extension JPass {
             }
             
             guard let jpsService = jpsService else {
-                JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
+                JPass.exit(withError: JPassError.invalidState(error: "Invalid state: Missing JPS service after authentication."))
             }
             
             var historyResults: [HistoryEntry]
@@ -71,9 +72,9 @@ extension JPass {
                         result[client.clientId] = client.displayName
                     }
                     
-                    for i in historyResults.indices {
-                        if let id = historyResults[i].viewedBy, let displayName = apiClients[id] {
-                            historyResults[i].viewedBy = displayName
+                    for index in historyResults.indices {
+                        if let id = historyResults[index].viewedBy, let displayName = apiClients[id] {
+                            historyResults[index].viewedBy = displayName
                         }
                     }
                 } catch {
@@ -85,17 +86,13 @@ extension JPass {
             let relativeDateTimeFormatter = RelativeDateTimeFormatter()
             let now = Date()
             
-            dateFormatter.dateFormat = GlobalSettings.DATE_FORMAT
+            dateFormatter.dateFormat = GlobalSettings.dateFormat
             
-            
-            // Create not-mutating copies of these so we can safely pass them to an escaping closure
-            let _relative = relative
-            
-            let table = TextTable<HistoryEntry> {
+            let table = TextTable<HistoryEntry> { [relative] in
                 let dateString = $0.eventTime != nil ? dateFormatter.string(from: $0.eventTime!) : "-"
                 var columns = [Column(title: "Date", value: dateString)]
                 
-                if _relative {
+                if relative {
                     let relativeDateString: String
                     
                     if let eventTime = $0.eventTime {

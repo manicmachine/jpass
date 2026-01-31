@@ -22,6 +22,7 @@ struct PendingEntry: Codable, CustomStringConvertible {
     }
     
     var description: String {
+        // swiftlint:disable:next line_length
         return "Date: \(createdDate.description) | Computer: \(user.computerName == nil ? user.clientManagementId : user.computerName!) | User: \(user.username) | GUID: \(user.guid) | Source: \(user.userSource)"
     }
 }

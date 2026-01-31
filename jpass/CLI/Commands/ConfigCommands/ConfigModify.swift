@@ -40,7 +40,7 @@ extension JPass.Config {
             }
             
             guard let jpsService = jpsService else {
-                JPass.exit(withError: JPassError.InvalidState(error: "Invalid state: Missing JPS service after authentication."))
+                JPass.exit(withError: JPassError.invalidState(error: "Invalid state: Missing JPS service after authentication."))
             }
             
             do {
@@ -73,6 +73,7 @@ extension JPass.Config {
                     
                     if let passwordRotationTime {
                         if currentSettings.passwordRotationTime != passwordRotationTime {
+                            // swiftlint:disable:next line_length
                             ConsoleLogger.shared.info("Password Rotation Time: \(ConfigGet.formatSecondsString(seconds: currentSettings.passwordRotationTime)) -> \(ConfigGet.formatSecondsString(seconds: passwordRotationTime))")
                         } else {
                             ConsoleLogger.shared.info("Desired Password Rotation Time setting (\(passwordRotationTime) is already set.")
@@ -81,6 +82,7 @@ extension JPass.Config {
                     
                     if let autoRotateExpirationTime {
                         if currentSettings.autoRotateExpirationTime != autoRotateExpirationTime {
+                            // swiftlint:disable:next line_length
                             ConsoleLogger.shared.info("Auto Rotate Expiration Time: \(ConfigGet.formatSecondsString(seconds: currentSettings.autoRotateExpirationTime)) -> \(ConfigGet.formatSecondsString(seconds: autoRotateExpirationTime))")
                         } else {
                             ConsoleLogger.shared.info("Desired Auto Rotate Expiration Time setting (\(autoRotateExpirationTime) is already set.")
@@ -119,7 +121,7 @@ extension JPass.Config {
             }
         }
         
-        private func hasChanges(_ currentSettings: GetSettingsResponse,_ autoDeploy: Bool?, _ autoRotate: Bool?, _ passwordRotationTime: Int?, _ autoRotateExpirationTime: Int?) -> Bool {
+        private func hasChanges(_ currentSettings: GetSettingsResponse, _ autoDeploy: Bool?, _ autoRotate: Bool?, _ passwordRotationTime: Int?, _ autoRotateExpirationTime: Int?) -> Bool {
             var hasChanges = false
             
             if let autoDeploy { hasChanges = hasChanges || currentSettings.autoDeployEnabled != autoDeploy }
