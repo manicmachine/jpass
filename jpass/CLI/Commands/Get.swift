@@ -4,7 +4,7 @@
 //
 //  Created by Oliphant, Corey Dean on 10/25/24.
 //
-import AppKit
+
 import ArgumentParser
 import TextTable
 
@@ -56,9 +56,7 @@ extension JPass {
                 
                 if copy {
                     ConsoleLogger.shared.info("Password retrieved and copied to clipboard.")
-                    let pasteboard = NSPasteboard.general
-                    pasteboard.clearContents()
-                    pasteboard.setString(password, forType: .string)
+                    Pasteboard.copy(password)
                 } else {
                     print(password)
                 }
