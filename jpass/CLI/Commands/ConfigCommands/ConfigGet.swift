@@ -42,10 +42,11 @@ extension JPass.Config {
         
         static func printSettings(_ settings: GetSettingsResponse) {
             let table = TextTable<GetSettingsResponse> {
-                [Column(title: "Auto Deploy Enabled", value: $0.autoDeployEnabled),
-                 Column(title: "Auto Rotate Enabled", value: $0.autoRotateEnabled),
-                 Column(title: "Password Rotation Time", value: Self.formatSecondsString(seconds: $0.passwordRotationTime)),
-                 Column(title: "Auto Rotate Expiration Time", value: Self.formatSecondsString(seconds: $0.autoRotateExpirationTime))
+                [
+                    Column(title: "LAPS for PreStage Accounts Enabled", value: $0.autoDeployEnabled),
+                    Column(title: "Auto Rotate Enabled", value: $0.autoRotateEnabled),
+                    Column(title: "Password Rotation Time", value: Self.formatSecondsString(seconds: $0.passwordRotationTime)),
+                    Column(title: "Auto Rotate Expiration Time", value: Self.formatSecondsString(seconds: $0.autoRotateExpirationTime))
                 ]
             }
 

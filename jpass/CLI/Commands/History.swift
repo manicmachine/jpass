@@ -10,8 +10,10 @@ import TextTable
 
 extension JPass {
     struct History: AsyncParsableCommand, JpsAuthComputerResolving {
-        // swiftlint:disable:next line_length
-        static let configuration = CommandConfiguration(abstract: "Retrieves the full history of all local admin passwords for a given host. Includes date created, date last seen, expiration time, and rotational status.", aliases: ["his", "h"])
+        static let configuration = CommandConfiguration(
+            abstract: "Retrieves the full history of all local admin passwords for a given host. Includes date created, date last seen, expiration time, and rotational status.",
+            aliases: ["his", "h"]
+        )
         
         @OptionGroup
         var identifierOptions: SingleIdentifierOptions

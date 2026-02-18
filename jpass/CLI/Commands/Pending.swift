@@ -10,8 +10,10 @@ import TextTable
 
 extension JPass {
     struct Pending: AsyncParsableCommand, JpsAuthenticating {
-        // swiftlint:disable:next line_length
-        static let configuration = CommandConfiguration(abstract: "Retrieves all devices and usernames pending a password rotation. If identifiers are provided, results will be filtered to only those devices.", aliases: ["pen", "p"])
+        static let configuration = CommandConfiguration(
+            abstract: "Retrieves all devices and usernames pending a password rotation. If identifiers are provided, results will be filtered to only those devices.",
+            aliases: ["pen", "p"]
+        )
         
         @Argument(help: "One or more of the following identifiers: Jamf id, computer name, management id, asset tag, bar code, or serial number.")
         var identifiers: [JpsIdentifier] = []
@@ -129,8 +131,7 @@ extension JPass {
                     return columns
                 }
                 
-                table.print(pendingResults.results, style: Style.psql)
-                
+                ConsoleLogger.shared.print(table.string(for: pendingResults.results, style: Style.psql) ?? "Failed to render table.")
                 ConsoleLogger.shared.info("\(pendingResults.results.count) pending rotations found.")
             } else {
                 if !identifiers.isEmpty {

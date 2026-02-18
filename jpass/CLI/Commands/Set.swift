@@ -8,7 +8,10 @@ import ArgumentParser
 
 extension JPass {
     struct Set: AsyncParsableCommand, JpsAuthComputerResolving {
-        static let configuration = CommandConfiguration(abstract: "Sets the password of the specified local admin account for the given host(s).", aliases: ["s"])
+        static let configuration = CommandConfiguration(
+            abstract: "Sets the password of the specified local admin account for the given host(s).",
+            aliases: ["s"]
+        )
 
         @OptionGroup
         var identifierOptions: MultipleIdentifiersOptions

@@ -8,7 +8,10 @@ import ArgumentParser
 
 extension JPass {
     struct Rotate: AsyncParsableCommand, JpsAuthComputerResolving {
-        static let configuration = CommandConfiguration(abstract: "Triggers a password rotation for the given host(s).", aliases: ["rot", "r"])
+        static let configuration = CommandConfiguration(
+            abstract: "Securely triggers a password rotation for the given host(s).",
+            aliases: ["rot", "r"]
+        )
         
         @OptionGroup
         var identifierOptions: MultipleIdentifiersOptions
