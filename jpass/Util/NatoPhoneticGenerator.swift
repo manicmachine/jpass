@@ -5,19 +5,24 @@
 //  Created by Oliphant, Corey Dean on 1/9/25.
 //
 
+import Rainbow
+
 struct NatoPhoneticGenerator {
-    static func generateCodePhrase(for str: String) -> String {
-        var phrase = ""
+    static func generateCodePhrase(for str: String, colored: Bool = false) -> String {
+        var phrase = String()
 
         for char in str {
-            phrase += "\(char): \(getCodeWord(for: char))\n"
+            let processedChar = colored ? ColorGenerator.colorify(char) : String(char)
+            let word = colored ? ColorGenerator.colorifyString(getCodeWord(for: char), matching: char) : getCodeWord(for: char)
+
+            phrase += "\(processedChar) : \(word)\n"
         }
         
         return phrase
     }
     
     // swiftlint:disable:next cyclomatic_complexity
-    static private func getCodeWord(for char: Character) -> String {
+    static func getCodeWord(for char: Character) -> String {
         let str = String(char)
         var result = ""
         
@@ -80,6 +85,8 @@ struct NatoPhoneticGenerator {
                 }
             } else {
                 switch char {
+                case " ":
+                    return "Space"
                 case "-":
                     return "Dash"
                 case ".":

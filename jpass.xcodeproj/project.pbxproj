@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		200B45AB2CEF99AB007931F1 /* TextTable in Frameworks */ = {isa = PBXBuildFile; productRef = 200B45AA2CEF99AB007931F1 /* TextTable */; };
+		202FEACD2F329A9F000B747B /* Rainbow in Frameworks */ = {isa = PBXBuildFile; productRef = 202FEACC2F329A9F000B747B /* Rainbow */; };
 		20DBD5C52CCAD42D003C5475 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 20DBD5C42CCAD42D003C5475 /* ArgumentParser */; };
 /* End PBXBuildFile section */
 
@@ -40,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				202FEACD2F329A9F000B747B /* Rainbow in Frameworks */,
 				20DBD5C52CCAD42D003C5475 /* ArgumentParser in Frameworks */,
 				200B45AB2CEF99AB007931F1 /* TextTable in Frameworks */,
 			);
@@ -87,6 +89,7 @@
 			packageProductDependencies = (
 				20DBD5C42CCAD42D003C5475 /* ArgumentParser */,
 				200B45AA2CEF99AB007931F1 /* TextTable */,
+				202FEACC2F329A9F000B747B /* Rainbow */,
 			);
 			productName = jpass;
 			productReference = 20DBD5B92CCAD1F3003C5475 /* jpass */;
@@ -119,6 +122,7 @@
 			packageReferences = (
 				20DBD5C32CCAD42D003C5475 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				200B45A92CEF99AB007931F1 /* XCRemoteSwiftPackageReference "TextTable" */,
+				202FEACB2F329A9F000B747B /* XCRemoteSwiftPackageReference "Rainbow" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 20DBD5BA2CCAD1F3003C5475 /* Products */;
@@ -340,6 +344,14 @@
 				minimumVersion = 0.0.2;
 			};
 		};
+		202FEACB2F329A9F000B747B /* XCRemoteSwiftPackageReference "Rainbow" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Rainbow.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.2.1;
+			};
+		};
 		20DBD5C32CCAD42D003C5475 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-argument-parser.git";
@@ -355,6 +367,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 200B45A92CEF99AB007931F1 /* XCRemoteSwiftPackageReference "TextTable" */;
 			productName = TextTable;
+		};
+		202FEACC2F329A9F000B747B /* Rainbow */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 202FEACB2F329A9F000B747B /* XCRemoteSwiftPackageReference "Rainbow" */;
+			productName = Rainbow;
 		};
 		20DBD5C42CCAD42D003C5475 /* ArgumentParser */ = {
 			isa = XCSwiftPackageProductDependency;
