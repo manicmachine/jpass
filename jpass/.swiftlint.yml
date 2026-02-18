@@ -1,3 +1,5 @@
+# Rule List: https://realm.github.io/SwiftLint/rule-directory.html
+
 disabled_rules:
 - trailing_whitespace
 - nesting
