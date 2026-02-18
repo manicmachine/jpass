@@ -24,7 +24,7 @@ extension JPass {
                 Pasteboard.copy(phrase)
                 ConsoleLogger.shared.info("Phrase copied to clipboard.")
             } else {
-                print(phrase)
+                ConsoleLogger.shared.print(phrase)
             }
         }
     }

@@ -10,7 +10,10 @@ import TextTable
 
 extension JPass {
     struct Accounts: AsyncParsableCommand, JpsAuthComputerResolving {
-        static let configuration = CommandConfiguration(abstract: "Retrieves all LAPS capable accounts for a given host.", aliases: ["acc", "a"])
+        static let configuration = CommandConfiguration(
+            abstract: "Retrieves all LAPS capable accounts for a given host.",
+            aliases: ["acc", "a"]
+        )
 
         @OptionGroup
         var identifierOptions: SingleIdentifierOptions
@@ -54,7 +57,7 @@ extension JPass {
                 ]
             }
             
-            table.print(accountsResults, style: Style.psql)
+            ConsoleLogger.shared.print(table.string(for: accountsResults, style: Style.psql) ?? "Failed to render table.")
             ConsoleLogger.shared.info("\(accountsResults.count) local admin accounts found.")
         }
         

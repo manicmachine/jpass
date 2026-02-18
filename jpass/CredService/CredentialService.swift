@@ -163,7 +163,7 @@ class CredentialService {
                 password = String(cString: pass)
             }
         } else {
-            print(message, terminator: "")
+            ConsoleLogger.shared.print(message, terminator: "")
             password = readLine()
         }
 

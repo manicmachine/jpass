@@ -39,11 +39,11 @@ extension ComputerRecordResolver {
                  Column(title: "Serial Number", value: $0.hardware.serialNumber)]
             }
             
-            table.print(computers.values, style: Style.psql)
+            ConsoleLogger.shared.print(table.string(for: computers.values, style: Style.psql) ?? "Failed to render table.")
             
             var choice = ""
             while choice.isEmpty {
-                print("Enter the Jamf ID of the computer you wish to retrieve: ", terminator: "")
+                ConsoleLogger.shared.print("Enter the Jamf ID of the computer you wish to retrieve: ", terminator: "")
                 
                 if let input = readLine() {
                     choice = input
@@ -52,7 +52,7 @@ extension ComputerRecordResolver {
                 if results[choice] != nil {
                     managementId = choice
                 } else {
-                    print("Invalid option provided.")
+                    ConsoleLogger.shared.print("Invalid option provided.")
                     choice.removeAll()
                 }
             }

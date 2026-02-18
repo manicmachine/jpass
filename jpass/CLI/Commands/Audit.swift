@@ -118,8 +118,7 @@ extension JPass {
                 return columns
             }
             
-            table.print(unifiedAuditEntries, style: Style.psql)
-
+            ConsoleLogger.shared.print(table.string(for: unifiedAuditEntries, style: Style.psql) ?? "Failed to render table.")
             ConsoleLogger.shared.info("\(unifiedAuditEntries.count) audit log entries found.")
         }
         

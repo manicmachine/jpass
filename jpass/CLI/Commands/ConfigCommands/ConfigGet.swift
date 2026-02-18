@@ -48,8 +48,8 @@ extension JPass.Config {
                  Column(title: "Auto Rotate Expiration Time", value: Self.formatSecondsString(seconds: $0.autoRotateExpirationTime))
                 ]
             }
-            
-            table.print([settings], style: Style.psql)
+
+            ConsoleLogger.shared.print(table.string(for: [settings], style: Style.psql) ?? "Failed to render table.")
         }
         
         static func formatSecondsString(seconds: Int) -> String {
