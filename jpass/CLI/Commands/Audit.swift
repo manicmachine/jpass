@@ -73,9 +73,17 @@ extension JPass {
             }
             
             if sortOrder == .newestFirst {
-                unifiedAuditEntries = unifiedAuditEntries.sorted { $0.expirationTime ?? Date(timeIntervalSince1970: 0) > $1.expirationTime ?? Date(timeIntervalSince1970: 0) }
+                unifiedAuditEntries = unifiedAuditEntries.sorted {
+                    $0.dateSeen ?? Date(timeIntervalSince1970: 0) > $1.dateSeen ?? Date(timeIntervalSince1970: 0)
+                }.sorted {
+                    $0.expirationTime ?? Date(timeIntervalSince1970: 0) > $1.expirationTime ?? Date(timeIntervalSince1970: 0)
+                }
             } else {
-                unifiedAuditEntries = unifiedAuditEntries.sorted { $0.expirationTime ?? Date(timeIntervalSince1970: 0) < $1.expirationTime ?? Date(timeIntervalSince1970: 0) }
+                unifiedAuditEntries = unifiedAuditEntries.sorted {
+                    $0.dateSeen ?? Date(timeIntervalSince1970: 0) < $1.dateSeen ?? Date(timeIntervalSince1970: 0)
+                }.sorted {
+                    $0.expirationTime ?? Date(timeIntervalSince1970: 0) < $1.expirationTime ?? Date(timeIntervalSince1970: 0)
+                }
             }
             
             if mapClients {
@@ -111,10 +119,10 @@ extension JPass {
                 var columns = [Column]()
 
                 columns.append(Column(title: "Password", value: $0.password))
-                columns.append(Column(title: "Date Seen", value: dateSeenString))
-                if relative { columns.append(Column(title: "Relative Date Seen", value: relativeDateSeenString)) }
                 columns.append(Column(title: "Expiration Time", value: expirationString))
                 if relative { columns.append(Column(title: "Relative Expiration Time", value: relativeExpirationString)) }
+                columns.append(Column(title: "Date Seen", value: dateSeenString))
+                if relative { columns.append(Column(title: "Relative Date Seen", value: relativeDateSeenString)) }
                 columns.append(Column(title: "Viewed By", value: $0.viewedBy ?? "-"))
                 
                 return columns
