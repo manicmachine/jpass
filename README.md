@@ -104,7 +104,7 @@ All subcommands support aliases to reduce the number of keystrokes (typing is ha
   ```
   `get` is the default command, so this can be reduced to `jpass <identifier>`.
   
-  If `--nato|-n` is provided, the retrieved password will be printed to STDOUT in addition along with a NATO phonetic pronunciation guide.
+  If `--nato|-n` is provided, the retrieved password will be printed to STDOUT along with a color coordinated NATO phonetic pronunciation guide.
   
   If `--copy|-c` is provided, the retrieved password will be copied directly to your clipboard instead of being printed to STDOUT.
 - **Rotate LAPS password**:

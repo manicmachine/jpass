@@ -4,3 +4,5 @@ xcuserdata/
 *.xcworkspace
 *.xctimeline
 *.hmap
+.vscode
+.build
