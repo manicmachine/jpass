@@ -58,7 +58,12 @@ All displayed passwords trigger rotations, all communications happen over HTTPS,
 ## Installation
 While Swift supports all major operating systems, JPass currently only supports macOS since it leverages macOS-specific APIs to access the local keychain. This may change in the future if there's enough demand.
 
-JPass is a self-contained binary so it can be installed anywhere. The recommended method is:
+JPass is a self-contained binary so it can be installed anywhere. The recommended method is via [Homebrew](https://brew.sh):
+
+`brew install manicmachine/jpass/jpass`
+
+Alternatively, I also release jpass as a signed pkg for easy deployment:
+
 1. Download the [latest release](https://github.com/manicmachine/jpass/releases/latest)
 2. Run the provided PKG, which will install `jpass` to `/usr/local/bin/jpass`
 
